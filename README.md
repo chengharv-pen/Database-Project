@@ -1,5 +1,2 @@
-# 
 # COMP353 Project
-#
-# Community Online Social Network - COSN
-#
+Community Online Social Network - COSN
