@@ -20,7 +20,8 @@ header {
 }
 
 .header-top {
-    text-align: center;
+    text-align: left;
+    padding-left: 10px;
     margin-bottom: 10px;
 }
 
