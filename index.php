@@ -1,17 +1,3 @@
-<?php
-	// Sample data
-	$tabs = [
-		"tab1" => "Tab 1",
-		"tab2" => "Tab 2",
-		"tab3" => "Tab 3"
-	];
-	$contents = [
-		"tab1" => "Content for Tab 1",
-		"tab2" => "Content for Tab 2",
-		"tab3" => "Content for Tab 3"
-	];
-?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,57 +9,66 @@
 <body>
 
     <!-- Header -->
-    <a class="header-nav-link" href="./index.php" target="content">
-        <header class="bg-primary py-3">
-            <div class="header-title">
-                <h1>Pawsome Pals Adoption Center</h1>
-            </div>
-            <div class="header-date-time"></div>
-			
-			<!-- Header Menu -->
-			<ul class="">
-				<li class="">
-					<a class="active" href="content/home.html" target="content">Members</a>
-				</li>
-				<li class="">
-					<a class="" href="content/find.html" target="content">Find a dog/cat</a>
-				</li>
-				<li class="">
-					<a class="" href="content/dog-care.html" target="content">Dog Care</a>
-				</li>
-				<li class="">
-					<a class="" href="content/cat-care.html" target="content">Cat Care</a>
-				</li>
-				<li class="">
-					<a class="" href="content/create-account.html" target="content">Create an account</a>
-				</li>
-				<li class="">
-					<a class="" href="#" data-url="check-session" target="content">Have a pet
-						to give away</a>
-				</li>
-				<li class="">
-					<a class="" href="#" data-url="logout" target="content">Log Out</a>
-				</li>
-				<li class="">
-					<a class="nav-link" href="content/contact.html" target="content">Contact Us</a>
-				</li>
-			</ul>
-        </header>
-    </a>
-
+    <header>
+		<div class="header-top">
+			<div class="header-title">
+				<a class="header-title-link" href="./view-posts/view-posts.php" target="content">
+					<h1>Community Online Social Network (COSN)</h1>
+				</a>
+			</div>
+		</div>
+		
+		  <!-- Header Menu -->
+		<div class="header-tabs">
+			<div class="tab">
+				<a class="active" href="./members/members.php" target="content">Members</a>
+			</div>
+			<div class="tab">
+				<a class="" href="./groups/groups.php" target="content">Groups</a>
+			</div>
+			<div class="tab">
+				<a class="" href="./friends/friends.php" target="content">Friends</a>
+			</div>
+			<div class="tab">
+				<a class="" href="./publish-posts/publish-posts.php" target="content">Publish Posts</a>
+			</div>
+			<div class="tab">
+				<a class="" href="./view-posts/view-posts.php" target="content">View Posts</a>
+			</div>
+			<div class="tab">
+				<a class="" href="./chat/chat.php" target="content">Chat</a>
+			</div>
+			<div class="tab">
+				<a class="" href="./events/events.php" target="content">Events</a>
+			</div>
+			<div class="tab">
+				<a class="" href="./gift-exchange/gift-exchange.php" target="content">Gift Exchange</a>
+			</div>
+		</div>
+    </header>
 
     <!-- Main Layout -->
     <div class="content-area">
         <!-- Content -->
         <main class="content">
-            <iframe name="content" id="iframe"></iframe>
+            <iframe name="content" id="iframe" src="./view-posts/view-posts.php"></iframe>
         </main>
     </div>
 
     <!-- Footer -->
-    <footer class="bg-secondary text-white text-center py-3">
+    <footer class="footer">
         <p>This is a footer</p>
-        <p><b><a class="footer-nav-link" href="content/disclaimer.html" target="content">Privacy/Disclaimer Statement</a></b></p>
+        <p><b><a class="footer-nav-link" href="./contact-us.php" target="content">Contact Us</a></b></p>
     </footer>
+
+	<script>
+		// Some JavaScript to handle color change on tab clicking
+		document.querySelectorAll('.tab a').forEach((tab) => {
+			tab.addEventListener('click', (e) => {
+				document.querySelectorAll('.tab a').forEach((t) => t.classList.remove('active'));
+				e.target.classList.add('active');
+			});
+		});
+	</script>
 </body>
 </html>
