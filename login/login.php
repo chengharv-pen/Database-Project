@@ -79,21 +79,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <link href="../styles.css" rel="stylesheet"/>
+    <link href="../styles.css?<?php echo time(); ?>" rel="stylesheet"/>
 </head>
 <body>
-    <form action="login.php" method="POST">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required>
-        
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
-        
-        <button type="submit">Login</button>
-    </form>
+    <header>
+        <div class="header-top">
+            <div class="header-title">
+                <a class="header-title-link" href="../index.php">
+                    <h1> Login to your Member account! </h1>
+                </a>
+            </div>
+        </div>
+    </header>
 
-    <?php if (!empty($error)): ?>
-        <p style="color: red;"><?php echo htmlspecialchars($error); ?></p>
-    <?php endif; ?>
+    <div class="forms-div">
+        <form action="login.php" method="POST">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+            
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            
+            <button type="submit">Login</button>
+        </form>
+
+        <?php if (!empty($error)): ?>
+            <p style="color: red;"><?php echo htmlspecialchars($error); ?></p>
+        <?php endif; ?>
+
+        <a href="./create-account.php">Do not have an account?</a>
+        </br>
+        <a href="./change-login.php">Forgot Password?</a>
+    </div>
 </body>
 </html>
