@@ -148,12 +148,21 @@ button[type=submit]:hover {
 
 */
 .profile {
-    max-width: 600px;
+    width: 80%;
     margin: 20px auto;
     padding: 20px;
-    border: 1px solid #ccc;
+    border: 2px solid #000000;
     border-radius: 10px;
     background-color: #f9f9f9;
+}
+
+.search-username[type=text] {
+    width: 30%;
+    margin: 10px;
+}
+
+.search-button[type=submit] {
+    width: 30%;
 }
 
 

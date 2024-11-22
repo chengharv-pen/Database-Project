@@ -30,7 +30,10 @@
         $passwordInput = $_POST['password'];
 
         // Query to find user by username
-        $sql = "SELECT MemberID, Username, Password, Privilege, Status, NeedsPasswordChange FROM Members WHERE Username = :username LIMIT 1";
+        $sql = "SELECT MemberID, Username, Password, Privilege, Status, NeedsPasswordChange 
+                FROM Members 
+                WHERE Username = :username LIMIT 1";
+        
         $statement = $pdo->prepare($sql);
         $statement->bindParam(':username', $usernameInput, PDO::PARAM_STR);
         $statement->execute();
@@ -42,8 +45,6 @@
 
             // Verify the password
             if (password_verify($passwordInput, $user['Password'])) {
-
-                echo "IN PASSWORD IF";
 
                 // Check if account status is active
                 if ($user['Status'] === 'Active') {

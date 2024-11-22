@@ -1,8 +1,6 @@
 <?php
     // Start session
     session_start();
-    print_r($_SESSION);
-    print($_SESSION['MemberID']);
 
     // Check if MemberID is set in session
     if (!isset($_SESSION['MemberID'])) {
@@ -26,9 +24,7 @@
     $memberID = $_SESSION['MemberID'];
 
     // Query to fetch member details
-    $sql = "SELECT 
-                MemberID, Username, FirstName, LastName, Email, Address, DOB, DateJoined, 
-                Privilege, Status, Profession, Region, Interests, LastLogin 
+    $sql = "SELECT *
             FROM Members 
             WHERE MemberID = :memberID";
 
@@ -58,28 +54,41 @@
 </head>
 <body>
 
-    <h1>Members (Display)</h1>
+    <h1>Your Profile</h1>
 
+    <!-- Display YOUR Profile -->
     <div class="profile">
-        <div>Username: <?php echo htmlspecialchars($member['Username']); ?></div>
-        <div>First Name: <?php echo htmlspecialchars($member['FirstName']); ?></div>
-        <div>Last Name: <?php echo htmlspecialchars($member['LastName']); ?></div>
-        <div>Email: <?php echo htmlspecialchars($member['Email']); ?></div>
-        <div>Address: <?php echo htmlspecialchars($member['Address']); ?></div>
-        <div>Date of Birth: <?php echo htmlspecialchars($member['DOB']); ?></div>
-        <div>Date Joined: <?php echo htmlspecialchars($member['DateJoined']); ?></div>
-        <div>Privilege: <?php echo htmlspecialchars($member['Privilege']); ?></div>
-        <div>Status: <?php echo htmlspecialchars($member['Status']); ?></div>
-        <div>Profession: <?php echo htmlspecialchars($member['Profession']); ?></div>
-        <div>Region: <?php echo htmlspecialchars($member['Region']); ?></div>
-        <div>Interests: <?php echo htmlspecialchars($member['Interests']); ?></div>
-        <div>Last Login: <?php echo htmlspecialchars($member['LastLogin']); ?></div>
+        <h2><?php echo htmlspecialchars($member['Username']); ?></h2>
+        <p>Last Login: <?php echo htmlspecialchars($member['LastLogin']); ?></p>
+        <p>Join Date: <?php echo htmlspecialchars($member['DateJoined']); ?></p>
+
+        <p>Status: <?php echo htmlspecialchars($member['Status']); ?></p>
+        <p>Profession: <?php echo htmlspecialchars($member['Profession']); ?></p>
+        <p>Region: <?php echo htmlspecialchars($member['Region']); ?></p>
+        <p>Interests: <?php echo htmlspecialchars($member['Interests']); ?></p>
+
+        <p><?php echo htmlspecialchars($member['PublicInformation']); ?></p>
+
+        
+        <p>Contact me: <?php echo htmlspecialchars($member['Email']); ?></p>
+
+        <button> See Your Posts </button>
+
+        </br>
+        </br>
+        <a href="./edit-members.php">Edit Display Information?</a>
+        </br>
+        <a href="./delete-members.php">Want to delete your account?</a>
     </div>
 
-
-
-    <a href="./edit-members.php">Edit Display Information?</a>
-    <a href="./delete-members.php">Want to delete your account?</a>
+    <!-- Search for a Profile by Username Input -->
+    <h1> Search for a Member by Username </h1>
+    <form action="./search-members.php" method="POST">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" class="search-username" required>
+        
+        <button type="submit" name="search-button" class="search-button">Search</button>
+    </form>
     
 </body>
 </html>

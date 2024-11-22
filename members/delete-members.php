@@ -35,7 +35,7 @@
                 } else {
                     $error = "Failed to delete the account.";
                 }
-                
+
             } catch (PDOException $e) {
                 $error = "Error: " . $e->getMessage();
             }
@@ -55,6 +55,9 @@
 <body>
 
     <h1>Delete Member Account</h1>
+
+    <p> ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ </p>
+    
     <h2 style="color: red;">WARNING: THIS ACTION WILL NOT BE REVERSIBLE. PLEASE PROCEED WITH CAUTION</h2>
         
     <!-- Display error if any -->
@@ -67,7 +70,8 @@
         <button type="submit" name="delete_account" class="delete-button">Delete My Account</button>
     </form>
         
-    <br>
+    <p> ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ </p>
+
     <a href="./display-members.php">Display Your Profile?</a>
 </body>
 </html>
