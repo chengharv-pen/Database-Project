@@ -26,8 +26,8 @@
 				<?php
 					if (isset($_SESSION['MemberID']) && $_SESSION['MemberID'] > 0) {
 						// Show Logout tab if logged in
+                        echo "<p>Welcome, " . $_SESSION['Username'] . "!</p>";
 						echo '<a href="./login/logout.php" target="_self">Logout</a>';
-						echo "\nWelcome, " . $_SESSION['Username'] . "!";
 					} else {
 						// Show Login tab if not logged in
 						echo '<a class="active" href="./login/login.php" target="_self">Login</a>';
@@ -39,7 +39,7 @@
         <!-- Header Menu -->
         <div class="header-tabs">
             <div class="tab">
-                <a class="" href="./members/members.php" target="content">Members</a>
+                <a class="" href="./members/display-members.php" target="content">Members</a>
             </div>
             <div class="tab">
                 <a class="" href="./groups/groups.php" target="content">Groups</a>
