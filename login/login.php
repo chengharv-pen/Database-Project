@@ -103,13 +103,15 @@
             <button type="submit">Login</button>
         </form>
 
-        <?php if (!empty($error)): ?>
-            <p style="color: red;"><?php echo htmlspecialchars($error); ?></p>
-        <?php endif; ?>
-
         <a href="./create-account.php">Do not have an account?</a>
         </br>
         <a href="./change-login.php">Forgot Password?</a>
+
+        <?php if (!empty($error)): ?>
+            <div class="feedback">
+                <?php echo htmlspecialchars($error); ?>
+            </div>
+        <?php endif; ?>
     </div>
 </body>
 </html>

@@ -17,7 +17,7 @@
     <header>
         <div class="header-top">
             <div class="header-title">
-                <a class="header-title-link" href="./view-posts/view-posts.php" target="content">
+                <a class="header-title-link" href="./home.php" target="content">
                     <h1>Community Online Social Network (COSN)</h1>
                 </a>
             </div>

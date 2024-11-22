@@ -8,8 +8,11 @@
     $username = "root";
     $password = "";
 
+    // Initialize feedback variable
+    $feedback = "";
+
     try {
-        $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
+        $pdo = new PDO("mysql:host=$host; dbname=$dbname", $username, $password);
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     } catch (PDOException $e) {
         die("Database connection failed: " . $e->getMessage());
@@ -41,7 +44,9 @@
                     DOB,
                     DateJoined,
                     Privilege,
-                    AccountType
+                    AccountType,
+                    NeedsPasswordChange,
+                    NeedsUsernameChange
                 ) VALUES (
                     :password,
                     :username,
@@ -53,7 +58,9 @@
                     :dob,
                     CURDATE(),
                     'Junior',
-                    :accountType
+                    :accountType,
+                    FALSE,
+                    FALSE
                 )";
 
         try {
@@ -71,9 +78,9 @@
 
             // Execute the query and check success
             if ($statement->execute()) {
-                echo "User successfully added!";
+                $feedback = "User successfully added!";
             } else {
-                echo "Failed to add the user.";
+                $feedback = "Failed to add the user.";
             }
         } catch (PDOException $e) {
             echo "Error: " . $e->getMessage();
@@ -90,7 +97,7 @@
     <link href="../styles.css" rel="stylesheet"/>
 </head>
 <body>
-<header>
+    <header>    
         <div class="header-top">
             <div class="header-title">
                 <a class="header-title-link" href="../index.php">
@@ -101,21 +108,44 @@
     </header>
 
     <div class="forms-div">
-        <form action="login.php" method="POST">
+        <form action="create-account.php" method="POST">
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" required>
 
             <label for="email">Email Address:</label>
-            <input type="text" id="email" name="email" required>
+            <input type="email" id="email" name="email" required>
+
+            <label for="firstName">First Name:</label>
+            <input type="text" id="firstName" name="firstName" required>
+
+            <label for="lastName">Last Name:</label>
+            <input type="text" id="lastName" name="lastName" required>
+
+            <label for="DOB">DOB:</label>
+            <input type="date" id="DOB" name="DOB" required>
+
+            </br>
+            </br>
             
             <label for="password">Password:</label>
             <input type="password" id="password" name="password" required>
-            
-            <button type="submit">Login</button>
-        </form>
 
-        <?php if (!empty($error)): ?>
-            <p style="color: red;"><?php echo htmlspecialchars($error); ?></p>
+            <label for="accountType">Account Type:</label>
+            <select name="accountType">
+                <option value="Real-person">Real Person</option>
+                <option value="Business">Business</option>
+            </select>
+            
+            <button type="submit">Create Account</button>
+        </form>
+        
+        <a href="./login.php">Login to Account?</a>
+
+        <!-- Display feedback below the form -->
+        <?php if (!empty($feedback)): ?>
+            <div class="feedback">
+                <?php echo htmlspecialchars($feedback); ?>
+            </div>
         <?php endif; ?>
     </div>
 </body>
