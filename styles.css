@@ -165,6 +165,14 @@ button[type=submit]:hover {
     width: 30%;
 }
 
+.block-button[type=submit] {
+    width: 10%;
+}
+
+.unblock-button[type=submit] {
+    width: 10%;
+}
+
 
 /* 
 

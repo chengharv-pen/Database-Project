@@ -1,0 +1,69 @@
+✅ >>> Done
+O >>> Partially done
+❌ >>> Not done
+
+Project State (MAIN FUNCTIONALITIES):
+
+0 - Setup
+login ✅ 
+logout ✅ 
+change user/pass O (only pass change for now)
+create account ✅ 
+
+1 - Members
+Edit ❌
+Display ✅ (cleaner profile display later, also filter private info if friend/not friend)
+Block ✅
+delete account ✅ 
+
+2 - Groups
+Join a Group ❌
+Withdraw from Group ❌
+Create ❌
+Edit ❌
+Display ❌
+Delete ❌
+
+3 - Friends
+Create (add friend) ❌
+Edit (organize the list..?) ❌
+Delete (remove friend) ❌
+Display (display ALL friends) ❌
+
+4 - Publishing Posts ❌
+
+5 - Viewing Posts
+All posts ❌
+Best posts ❌
+Latest posts ❌
+Filtered by Groups ❌
+
+6 - Chat
+I think I will just implement something similar to ROBLOX's chat here ❌
+
+7 - Events
+NOTE: 1 AND 2 SHOULD BE DONE BEFORE DOING THIS
+Organize by voting between multiple date/time/place suggested by group members ❌
+
+8 - Gift Exchange of ideas
+wtf? ❌
+
+Project Intricacies:
+
+0 - Warning System
+Incrementing warnings ❌
+Suspending an account ❌
+Fines (ONLY FOR BUSINESS ACCOUNTS) ❌
+
+1 - Email System
+how should i simulate this...? ❌
+
+2 - Administrator
+Only Administrators should issue Warnings ❌
+
+3 - Members Settings
+Inactive should act as a Offline Mode ❌
+
+Junior >>> can post (has control over the scope of it), can control the comments. ❌
+Senior >>> can create groups and add people to groups ❌
+Admin >>> can change privilege/status of other members ❌

@@ -15,7 +15,11 @@
         die("Database connection failed: " . $e->getMessage());
     }   
 
+    // Placeholder for logged-in user's ID
+    $loggedInUserID = $_SESSION['MemberID']; // Assuming session holds logged-in user's MemberID
+
     $member = null;
+    $blockingStatus = false; // Default to not blocked
 
     // Handle search form submission
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -38,6 +42,21 @@
             if (!$member) {
                 die("Searched Member not found.");
             }
+
+            // Check if the user is already blocked
+            $checkBlockSql = "SELECT 1 
+            FROM BlockedMembers 
+            WHERE BlockerID = :blocker AND BlockedID = :blocked";
+
+            $blockStmt = $pdo->prepare($checkBlockSql);
+            
+            $blockStmt->execute([
+                ':blocker' => $loggedInUserID,
+                ':blocked' => $member['MemberID']
+            ]);
+
+            $blockingStatus = $blockStmt->fetchColumn();
+
         } catch (PDOException $e) {
             die("Query failed: " . $e->getMessage());
         }
@@ -73,6 +92,22 @@
 
         <button> See Posts </button>
         <button> Add as Friend </button>
+        
+        <form action="./block-members.php" method="POST">
+            <input type="hidden" name="member_id" value="<?php echo htmlspecialchars($member['MemberID']); ?>">
+            <?php if ($blockingStatus): ?>
+                <!-- Unblock button -->
+                <button type="submit" name="action" value="unblock" class="unblock-button">
+                    Unblock
+                </button>
+            <?php else: ?>
+                <!-- Block button with optional reason -->
+                <button type="submit" name="action" value="block" class="block-button">
+                    Block
+                </button>
+                <textarea name="reason" placeholder="Reason for blocking (optional)" rows="2" cols="40"></textarea>
+            <?php endif; ?>
+        </form>
     </div>
 </body>
 </html>

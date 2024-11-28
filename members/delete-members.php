@@ -73,5 +73,16 @@
     <p> ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ </p>
 
     <a href="./display-members.php">Display Your Profile?</a>
+
+    <script>
+        // Add confirmation popup for the delete button
+        document.querySelector('.delete-button').addEventListener('click', (event) => {
+            const confirmed = confirm("Are you sure you want to delete your account? This action cannot be undone.");
+            if (!confirmed) {
+                // Prevent form submission if the user cancels
+                event.preventDefault();
+            }
+        });
+    </script>
 </body>
 </html>
