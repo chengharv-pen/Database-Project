@@ -7,11 +7,11 @@ Project State (MAIN FUNCTIONALITIES):
 0 - Setup
 login ✅ 
 logout ✅ 
-change user/pass O (only pass change for now)
+change user/pass ✅
 create account ✅ 
 
 1 - Members
-Edit ❌
+Edit ✅
 Display ✅ (cleaner profile display later, also filter private info if friend/not friend)
 Block ✅
 delete account ✅ 

@@ -74,6 +74,7 @@
     </div>
 
     <!-- Footer -->
+    <!-- Put the Status Selection on the bottom right IF LOGGED IN -->
     <footer class="footer">
         <p>This is a footer</p>
         <p><b><a class="footer-nav-link" href="./contact-us.php" target="content">Contact Us</a></b></p>
