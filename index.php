@@ -42,7 +42,7 @@
                 <a class="" href="./members/display-members.php" target="content">Members</a>
             </div>
             <div class="tab">
-                <a class="" href="./groups/groups.php" target="content">Groups</a>
+                <a class="" href="./groups/display-groups.php" target="content">Groups</a>
             </div>
             <div class="tab">
                 <a class="" href="./friends/friends.php" target="content">Friends</a>

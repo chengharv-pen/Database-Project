@@ -21,7 +21,7 @@ Join a Group ❌
 Withdraw from Group ❌
 Create ❌
 Edit ❌
-Display ❌
+Display ✅
 Delete ❌
 
 3 - Friends
