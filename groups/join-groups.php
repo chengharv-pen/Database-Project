@@ -2,14 +2,16 @@
     // Start session
     session_start();
 
+    // Check if user is authorized
+    if (!isset($_SESSION['MemberID']) || !isset($_SESSION['Privilege'])) {
+        die("Access denied. Please log in.");
+    }
+
     // Database connection
     $host = "localhost"; // Change if using a different host
     $dbname = "db-schema";
     $username = "root";
     $password = "";
-
-    // Initialize feedback variable
-    $feedback = "";
 
     try {
         $pdo = new PDO("mysql:host=$host; dbname=$dbname", $username, $password);
@@ -17,7 +19,6 @@
     } catch (PDOException $e) {
         die("Database connection failed: " . $e->getMessage());
     }
-
 ?>
 
 <!DOCTYPE html>

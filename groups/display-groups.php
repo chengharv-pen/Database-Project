@@ -2,6 +2,17 @@
     // Start session
     session_start();
 
+    // Check if user is authorized
+    if (!isset($_SESSION['MemberID']) || !isset($_SESSION['Privilege'])) {
+        die("Access denied. Please log in.");
+    }
+    
+    // Check for messages in the query string
+    $message = "";
+    if (isset($_GET['message'])) {
+        $message = htmlspecialchars($_GET['message']); // Sanitize input
+    }
+
     // Database connection
     $host = "localhost";
     $dbname = "db-schema";
@@ -64,6 +75,10 @@
     <title>Display Groups</title>
 </head>
 <body>
+    <?php if ($message !== ""): ?>
+        <?php htmlspecialchars("<p style='color: green; font-size: 30px; font-weight: bold;'>" . $message . "</p>"); ?>       
+    <?php endif ?>
+
     <h1>Display Groups</h1>
 
     <!-- Dropdown to toggle view -->
@@ -74,6 +89,10 @@
             <option value="joined" <?= $view === 'joined' ? 'selected' : '' ?>>Joined Groups</option>
         </select>
     </form>
+
+    <?php if ($privilege !== 'Junior'): ?>
+        <a href="./create-groups.php">Want to Create Groups?</a>
+    <?php endif; ?>
 
     <!-- Display groups based on selection -->
     <ul>
@@ -101,17 +120,30 @@
                 <?php elseif ($view === 'joined'): ?>
                     <span>Role: <?= htmlspecialchars($group['Role']) ?></span>
 
-                    <!-- Join button for all groups -->
+                    <!-- Withdraw button for all JOINED groups -->
                     <form action="./join-group.php" method="POST" style="display:inline;">
                         <input type="hidden" name="GroupID" value="<?= $group['GroupID'] ?>">
-                        <button type="submit">Join</button>
+                        <button type="submit">Withdraw</button>
                     </form>
 
-                    <?php if ($group['Role'] === 'Admin' || $privilege !== 'Junior'): ?>
-                        <!-- Edit button for Admins/Senior -->
+                    <!-- View a Group's Members -->
+                    <form action="./view-members-groups.php" method="POST" style="display:inline;">
+                        <input type="hidden" name="GroupID" value="<?= $group['GroupID'] ?>">
+                        <button type="submit">View Group Members</button>
+                    </form>
+                    
+                    <!-- This should only be accessible to Senior/Admin Member AND Group Admin -->
+                    <?php if ($group['Role'] === 'Admin' && $privilege !== 'Junior'): ?>
+                        <!-- Edit button -->
                         <form action="./edit-groups.php" method="GET">
                             <input type="hidden" name="GroupID" value="<?= $group['GroupID'] ?>">
                             <button type="submit">Edit</button>
+                        </form>
+
+                        <!-- Delete button -->
+                        <form action="./delete-groups.php" method="GET">
+                            <input type="hidden" name="GroupID" value="<?= $group['GroupID'] ?>">
+                            <button type="submit">Delete</button>
                         </form>
                     <?php endif; ?>
                 <?php endif; ?>

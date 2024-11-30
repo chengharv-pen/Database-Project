@@ -1,10 +1,10 @@
 <?php
     // Start session
     session_start();
-
-    // Check if MemberID is set in session
-    if (!isset($_SESSION['MemberID'])) {
-        die("Member not logged in.");
+    
+    // Check if user is authorized
+    if (!isset($_SESSION['MemberID']) || !isset($_SESSION['Privilege'])) {
+        die("Access denied. Please log in.");
     }
 
     // Database connection

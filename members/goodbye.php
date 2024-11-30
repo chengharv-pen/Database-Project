@@ -12,6 +12,7 @@
             if (!sessionStorage.getItem('parentReloaded')) {
                 // Reload the parent page
                 window.parent.location.reload();
+                
                 // Set a flag to ensure it doesn't reload again
                 sessionStorage.setItem('parentReloaded', 'true');
             }

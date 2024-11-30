@@ -22,7 +22,7 @@ Withdraw from Group ❌
 Create ❌
 Edit ❌
 Display ✅
-Delete ❌
+Delete ✅
 
 3 - Friends
 Create (add friend) ❌
