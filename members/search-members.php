@@ -25,6 +25,7 @@
 
     $member = null;
     $blockingStatus = false; // Default to not blocked
+    $friendStatus = false; // Default to not friend
 
     // Handle search form submission
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -62,6 +63,18 @@
 
             $blockingStatus = $blockStmt->fetchColumn();
 
+            // Check if the user is already a friend
+            $checkFriendSql = "SELECT 1
+            FROM Relationships 
+            WHERE MemberID1 = :senderMemberID AND MemberID2 = :receiverMemberID";
+
+            $friendStmt = $pdo->prepare($checkFriendSql);
+
+            $friendStmt->bindParam(':senderMemberID', $loggedInUserID, PDO::PARAM_INT);
+            $friendStmt->bindParam(':senderMemberID', $member['MemberID'], PDO::PARAM_INT);
+
+            $friendStatus = $friendStmt->fetchColumn();
+
         } catch (PDOException $e) {
             die("Query failed: " . $e->getMessage());
         }
@@ -96,7 +109,18 @@
         <p>Contact me: <?php echo htmlspecialchars($member['Email']); ?></p>
 
         <button> See Posts </button>
-        <button> Add as Friend </button>
+
+        <form action="../friends/request-friends.php" method="POST">
+            <input type="hidden" name="member_id" value="<?php echo htmlspecialchars($member['MemberID']); ?>">
+
+            <?php if ($friendStatus): ?>
+                <!-- If added as Friend, then show this -->
+                <button type="submit" name="action" value="remove_friend" class="friend-button"> Remove Friend </button> 
+            <?php else: ?>
+                <!-- If not added as Friend yet, then show this -->
+                <button type="submit" name="action" value="add_friend" class="friend-button"> Add to Friends </button>
+            <?php endif; ?>
+        </form>
         
         <form action="./block-members.php" method="POST">
             <input type="hidden" name="member_id" value="<?php echo htmlspecialchars($member['MemberID']); ?>">
