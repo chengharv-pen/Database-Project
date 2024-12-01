@@ -179,12 +179,47 @@ button[type=submit]:hover {
     Groups Edit Members Styling
 
 */
+.container-2-horizontal {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 50px;
+}
+
 .edit-group-form {
     width: 80%;
 }
 
 .join-requests {
     width: 20%;
+}
+
+/*
+
+    Tables Styling
+
+*/
+.member-details {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.member-details-head, .member-details-body {
+    display: flex;
+    flex-direction: row;
+    width: 80%;
+    border: 1px solid black; /* Define full border properties */
+}
+
+.head-item, .body-item {
+    width: 20%;
+    padding: 10px;
+    border-right: 1px solid black; /* Fix: complete border property */
+}
+
+.head-item {
+    font-weight: bold;
 }
 
 

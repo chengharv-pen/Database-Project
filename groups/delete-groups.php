@@ -2,6 +2,9 @@
     // Start session
     session_start();
 
+    $memberID = $_SESSION['MemberID'];
+    $privilege = $_SESSION['Privilege'];
+
     // Check if user is authorized
     if (!isset($_SESSION['MemberID']) || !isset($_SESSION['Privilege'])) {
         die("Access denied. Please log in.");
@@ -25,18 +28,20 @@
         // Display confirmation page
         $groupID = intval($_GET['GroupID']);
 
-        // Fetch group details
+        // Fetch group details along with the role of the current user
         $stmt = $pdo->prepare("
-            SELECT GroupName, OwnerID 
-            FROM `Groups` 
-            WHERE GroupID = :groupID
+            SELECT g.GroupName, g.OwnerID, gm.Role 
+            FROM `Groups` g
+            LEFT JOIN GroupMembers gm ON g.GroupID = gm.GroupID 
+            WHERE g.GroupID = :groupID AND gm.MemberID = :memberID
         ");
         $stmt->bindParam(':groupID', $groupID, PDO::PARAM_INT);
+        $stmt->bindParam(':memberID', $memberID, PDO::PARAM_INT);
         $stmt->execute();
         $group = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$group) {
-            die("Group not found.");
+            die("Group not found or you are not a member of this group.");
         }
 
     } elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_group'])) {
@@ -99,6 +104,8 @@
         <form method="POST">
             <button type="submit" name="delete_group" class="delete-button">Delete the Group <?php echo htmlspecialchars($group['GroupName']); ?></button>
         </form>
+    <?php else: ?>
+        <p>You do not have the necessary privileges to delete this group.</p>
     <?php endif; ?>
 
     <script>

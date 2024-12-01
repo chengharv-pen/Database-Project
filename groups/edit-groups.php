@@ -5,6 +5,9 @@
     $memberID = $_SESSION['MemberID'];
     $privilege = $_SESSION['Privilege'];
 
+    // A variable that gives feedback for accept/reject join requests
+    $feedback = "";
+
     // Check if user is authorized
     if (!isset($_SESSION['MemberID']) || !isset($_SESSION['Privilege'])) {
         die("Access denied. Please log in.");
@@ -23,17 +26,37 @@
         die("Database connection failed: " . $e->getMessage());
     }
 
-    // GET method from display-groups.php
+    // Handle GET request to fetch group details
     if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['GroupID'])) {
-        // Display confirmation page
         $groupID = intval($_GET['GroupID']);
 
-        // Fetch group details
+        // Fetch group details along with the role of the current user
         $stmt = $pdo->prepare("
-            SELECT GroupName, OwnerID 
-            FROM `Groups` 
-            WHERE GroupID = :groupID
+            SELECT g.GroupName, g.OwnerID, gm.Role, g.GroupID
+            FROM `Groups` g
+            LEFT JOIN GroupMembers gm ON g.GroupID = gm.GroupID
+            WHERE g.GroupID = :groupID AND gm.MemberID = :memberID
         ");
+        $stmt->bindParam(':groupID', $groupID, PDO::PARAM_INT);
+        $stmt->bindParam(':memberID', $memberID, PDO::PARAM_INT);
+        $stmt->execute();
+        $group = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$group) {
+            die("Group not found or you are not a member of this group.");
+        }
+
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_group'])) {
+
+        // Ensure GroupID is present for editing
+        if (!isset($_POST['GroupID']) || empty($_POST['GroupID'])) {
+            die("Invalid request. GroupID is required.");
+        }
+
+        $groupID = intval($_POST['GroupID']);
+        
+        // Fetch group details to ensure the group exists and belongs to the correct member
+        $stmt = $pdo->prepare("SELECT GroupName, OwnerID FROM `Groups` WHERE GroupID = :groupID");
         $stmt->bindParam(':groupID', $groupID, PDO::PARAM_INT);
         $stmt->execute();
         $group = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -41,17 +64,6 @@
         if (!$group) {
             die("Group not found.");
         }
-
-    }
-    
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['edit_group'])) {
-        
-        // Handle edit
-        if (!isset($_POST['GroupID']) || empty($_POST['GroupID'])) {
-            die("Invalid request. GroupID is required.");
-        }
-
-        $groupID = intval($_POST['GroupID']);
 
         // Initialize an array for updates
         $updates = [];
@@ -75,7 +87,7 @@
     
         // Check if there are updates
         if (!empty($updates)) {
-            // Add the MemberID condition
+            // Add the GroupID condition
             $updateSQL = "UPDATE `Groups` SET " . implode(", ", $updates) . " WHERE GroupID = :groupID";
             $params[':groupID'] = $groupID;
     
@@ -89,10 +101,7 @@
         } else {
             header("Location: ./display-groups.php?message=No changes to Group.");
         }
-    } else {
-        die("Invalid request.");
     }
-
     
     // Only show join requests if the current user is the group owner or admin
     // Fetch pending join requests for the group
@@ -105,31 +114,55 @@
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'], $_POST['request_id'])) {
         $requestID = intval($_POST['request_id']);
         $action = $_POST['action']; // Either 'approve' or 'reject'
-
-        // Validate action
+        $groupID = intval($_POST['group_id']); // Ensure group_id is passed via POST
+    
+        if (!$groupID || !$requestID || !$action) {
+            die("Invalid request. Missing required fields.");
+        }
+    
         if ($action === 'approve' || $action === 'reject') {
-            // Update the status of the request
+            // Fetch MemberID associated with the request
+            $stmt = $pdo->prepare("
+                SELECT MemberID 
+                FROM GroupJoinRequests 
+                WHERE RequestID = :requestID AND GroupID = :groupID AND Status = 'Pending'
+            ");
+            $stmt->bindParam(':requestID', $requestID, PDO::PARAM_INT);
+            $stmt->bindParam(':groupID', $groupID, PDO::PARAM_INT);
+            $stmt->execute();
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+            if (!$result || !isset($result['MemberID'])) {
+                die("Invalid join request or no MemberID found.");
+            }
+    
+            $memberID = $result['MemberID'];
+    
+            // Update the status of the join request
             $status = ($action === 'approve') ? 'Approved' : 'Rejected';
             $stmt = $pdo->prepare("UPDATE GroupJoinRequests SET Status = :status WHERE RequestID = :requestID");
             $stmt->bindParam(':status', $status, PDO::PARAM_STR);
             $stmt->bindParam(':requestID', $requestID, PDO::PARAM_INT);
             $stmt->execute();
-
+    
             // If approved, add member to GroupMembers
             if ($status === 'Approved') {
                 $stmt = $pdo->prepare("INSERT INTO GroupMembers (GroupID, MemberID, Role, DateAdded) VALUES (:groupID, :memberID, 'Member', CURRENT_DATE)");
                 $stmt->bindParam(':groupID', $groupID, PDO::PARAM_INT);
-                $stmt->bindParam(':memberID', $requests[0]['MemberID'], PDO::PARAM_INT);
-                $stmt->execute();
-            }
+                $stmt->bindParam(':memberID', $memberID, PDO::PARAM_INT);
 
-            // Redirect to avoid resubmission on refresh
+                if ($stmt->execute()) {
+                    $feedback = "Member approved and added to Group!!!";
+                } else {
+                    $feedback = "Member already in Group...";
+                }
+            }
+    
+            // Redirect to avoid resubmission
             header("Location: ./edit-groups.php?GroupID=$groupID");
             exit;
         }
-    } else {
-        die("Invalid request.");
-    }
+    }    
 ?>
 
 <!DOCTYPE html>
@@ -141,13 +174,20 @@
 </head>
 <body>
 
-    <!-- This should only be accessible to a Senior/Admin -->
-    <h1> Edit Groups </h1>
+    <?php if ($feedback !== ""): ?>
+        <p style='color: green; font-size: 30px; font-weight: bold;'><?php echo htmlspecialchars($feedback); ?></p>     
+    <?php endif ?>
 
+    <!-- This should only be accessible to a Senior/Admin -->
     <?php if ($group['Role'] === 'Admin' && $privilege !== 'Junior'): ?>
         <div class="container-2-horizontal">
             <div class="edit-group-form">
+                <h1> Edit Groups </h1>
                 <form action="./edit-groups.php" method="POST">
+
+                    <!-- Hidden input to store GroupID -->
+                    <input type="hidden" name="GroupID" value="<?php echo htmlspecialchars($group['GroupID']); ?>">
+
                     <label for="group_name">New Group Name:</label>
                     <input type="text" id="group_name" name="group_name">
                     
@@ -168,7 +208,7 @@
                     </br>
                     </br>
 
-                    <button type="submit">Submit Group Changes</button>
+                    <button type="submit" name="edit_group" value="edit">Submit Group Changes</button>
                 </form>
             </div>
 
@@ -192,6 +232,7 @@
                                     <td>
                                         <!-- Approve and Reject buttons -->
                                         <form action="./edit-groups.php" method="POST">
+                                            <input type="hidden" name="group_id" value="<?php echo htmlspecialchars($groupID); ?>">
                                             <input type="hidden" name="request_id" value="<?= $request['RequestID'] ?>">
                                             <button type="submit" name="action" value="approve">Approve</button>
                                             <button type="submit" name="action" value="reject">Reject</button>

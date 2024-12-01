@@ -41,8 +41,18 @@
     try {
         if ($view === 'all') {
 
-            // Fetch all groups
-            $stmt = $pdo->query("SELECT * FROM `Groups`");
+            // Fetch all groups that are NOT joined by the logged-in member
+            $stmt = $pdo->prepare("
+                SELECT g.* 
+                FROM `Groups` g
+                LEFT JOIN GroupMembers gm ON g.GroupID = gm.GroupID AND gm.MemberID = :memberID
+                WHERE gm.GroupMemberID IS NULL
+            ");
+            
+            $stmt->bindParam(':memberID', $memberID, PDO::PARAM_INT);
+            
+            $stmt->execute();
+            
             $groups = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         } elseif ($view === 'joined') {
@@ -76,7 +86,7 @@
 </head>
 <body>
     <?php if ($message !== ""): ?>
-        <?php htmlspecialchars("<p style='color: green; font-size: 30px; font-weight: bold;'>" . $message . "</p>"); ?>       
+        <p style='color: green; font-size: 30px; font-weight: bold;'><?php echo htmlspecialchars($message); ?></p>     
     <?php endif ?>
 
     <h1>Display Groups</h1>
@@ -97,7 +107,7 @@
     <!-- Display groups based on selection -->
     <ul>
         <?php if ($view === 'all'): ?>
-            <h2>All Groups</h2>
+            <h2>All Unjoined Groups</h2>
         <?php else: ?>
             <h2>Your Joined Groups</h2>
         <?php endif; ?>
@@ -111,7 +121,7 @@
                 <?php if ($view === 'all'): ?>
 
                     <!-- Join button for all groups -->
-                    <form action="./join-group.php" method="POST">
+                    <form action="./join-groups.php" method="POST">
                         <input type="hidden" name="GroupID" value="<?= $group['GroupID'] ?>">
                         <button type="submit">Join</button>
                     </form>
@@ -121,13 +131,13 @@
                     <span>Role: <?= htmlspecialchars($group['Role']) ?></span>
 
                     <!-- Withdraw button for all JOINED groups -->
-                    <form action="./join-group.php" method="POST" style="display:inline;">
+                    <form action="./withdraw-groups.php" method="POST">
                         <input type="hidden" name="GroupID" value="<?= $group['GroupID'] ?>">
                         <button type="submit">Withdraw</button>
                     </form>
 
                     <!-- View a Group's Members -->
-                    <form action="./view-members-groups.php" method="POST" style="display:inline;">
+                    <form action="./view-members-groups.php" method="POST">
                         <input type="hidden" name="GroupID" value="<?= $group['GroupID'] ?>">
                         <button type="submit">View Group Members</button>
                     </form>

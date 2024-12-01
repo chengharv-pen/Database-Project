@@ -17,11 +17,13 @@ Block ✅
 delete account ✅ 
 
 2 - Groups
-Join a Group ❌
-Withdraw from Group ❌
-Create ❌
-Edit ❌
-Display ✅
+Join a Group ✅
+Withdraw from Group ✅
+View Group Members ✅
+Create ✅
+Edit ✅
+Approve Join Requests ✅
+Display Groups ✅
 Delete ✅
 
 3 - Friends
@@ -65,5 +67,5 @@ Only Administrators should issue Warnings ❌
 Inactive should act as a Offline Mode ❌
 
 Junior >>> can post (has control over the scope of it), can control the comments. ❌
-Senior >>> can create groups and add people to groups ❌
+Senior >>> can create groups and add people to groups ✅
 Admin >>> can change privilege/status of other members ❌
