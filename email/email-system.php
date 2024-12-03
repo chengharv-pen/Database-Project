@@ -28,7 +28,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Email System</title>
-    <link href="../styles.css" rel="stylesheet"/>
+    <link href="../styles.css?<?php echo time(); ?>" rel="stylesheet"/>
 </head>
 <body>
     <div class="popup-notification" id="email-notification" style="display: none;">

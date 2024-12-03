@@ -81,7 +81,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="../styles.css" rel="stylesheet"/>
+    <link href="../styles.css?<?php echo time(); ?>" rel="stylesheet"/>
     <title>Display Groups</title>
 </head>
 <body>
@@ -105,60 +105,77 @@
     <?php endif; ?>
 
     <!-- Display groups based on selection -->
-    <ul>
+    <div class="groups">
         <?php if ($view === 'all'): ?>
             <h2>All Unjoined Groups</h2>
         <?php else: ?>
             <h2>Your Joined Groups</h2>
         <?php endif; ?>
-
+        
+        <div class="group">
         <?php foreach ($groups as $group): ?>
-            <li>
+            <div class="group-names">
                 <strong><?= htmlspecialchars($group['GroupName']) ?></strong>
                 (<?= htmlspecialchars($group['GroupType']) ?>, <?= htmlspecialchars($group['Region']) ?>)
+            </div>
 
+            <?php if ($view === 'joined'): ?>
+                <span>Role: <?= htmlspecialchars($group['Role']) ?></span>
+            <?php endif; ?>
+
+            <div class="group-buttons">
                 <!-- Filter 1: ALL Groups -->
                 <?php if ($view === 'all'): ?>
-
+                    
                     <!-- Join button for all groups -->
+                    <div class="group-button">
                     <form action="./join-groups.php" method="POST">
                         <input type="hidden" name="GroupID" value="<?= $group['GroupID'] ?>">
                         <button type="submit">Join</button>
                     </form>
+                    </div>
 
                 <!-- Filter 2: JOINED Groups -->
                 <?php elseif ($view === 'joined'): ?>
-                    <span>Role: <?= htmlspecialchars($group['Role']) ?></span>
 
                     <!-- Withdraw button for all JOINED groups -->
+                    <div class="group-button">
                     <form action="./withdraw-groups.php" method="POST">
                         <input type="hidden" name="GroupID" value="<?= $group['GroupID'] ?>">
                         <button type="submit">Withdraw</button>
                     </form>
+                    </div>
 
                     <!-- View a Group's Members -->
+                    <div class="group-button">
                     <form action="./view-members-groups.php" method="POST">
                         <input type="hidden" name="GroupID" value="<?= $group['GroupID'] ?>">
                         <button type="submit">View Group Members</button>
                     </form>
+                    </div>
                     
                     <!-- This should only be accessible to Senior/Admin Member AND Group Admin -->
                     <?php if ($group['Role'] === 'Admin' && $privilege !== 'Junior'): ?>
                         <!-- Edit button -->
+                        <div class="group-button">
                         <form action="./edit-groups.php" method="GET">
                             <input type="hidden" name="GroupID" value="<?= $group['GroupID'] ?>">
                             <button type="submit">Edit</button>
                         </form>
+                        </div>
 
                         <!-- Delete button -->
+                        <div class="group-button">
                         <form action="./delete-groups.php" method="GET">
                             <input type="hidden" name="GroupID" value="<?= $group['GroupID'] ?>">
                             <button type="submit">Delete</button>
                         </form>
+                        </div>
                     <?php endif; ?>
                 <?php endif; ?>
-            </li>
+            </div>
         <?php endforeach; ?>
-    </ul>
+        </div>
+    </div>
 </body>
 </html>

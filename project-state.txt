@@ -32,13 +32,20 @@ Edit (edit to Family/Friends/Colleagues/Other) ✅
 Delete (remove friend) ✅
 Display (display ALL friends) ✅
 
-4 - Publishing Posts ❌
+4 - Publishing Posts 
+Publish a Post ✅
+Should we make Members be able to post Posts for a singular Joined Group? ❌
 
 5 - Viewing Posts
-All posts ❌
+All posts ✅
 Best posts ❌
 Latest posts ❌
+Oldest posts ❌
 Filtered by Groups ❌
+Filtered by Friends ❌
+Edit Own Comments ❌
+Delete Comments in your Posts ❌
+Delete Your Comments in other Posts ❌
 
 6 - Chat
 Implement something similar to Discord's chat here? Only text, no pictures/videos for simplicity. ✅ (NEEDS STYLING)
@@ -59,7 +66,7 @@ Only Administrators should issue Warnings ❌
 
 1 - Email System
 how should i simulate this...? ✅
-"CONS will allow only Proton email addresses!" ❌ (Does it mean a regex on Member creation?)
+"CONS will allow only Proton email addresses!" ✅ (Does it mean a regex on Member creation?)
 
 2 - Members Settings
 Inactive should act as a "DND" Mode (can't text to the Inactive) ❌

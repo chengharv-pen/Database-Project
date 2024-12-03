@@ -7,12 +7,9 @@
     <link href="./styles.css?<?php echo time(); ?>" rel="stylesheet"/>
 </head>
 <body>
-	<?php
-		session_start(); // Ensure session is started
-		print_r($_SESSION);
-		print($_SESSION['MemberID']);
-	?>
-
+    <?php
+        session_start(); // Ensure session is started
+    ?>
     <!-- Header -->
     <header>
         <div class="header-top">
@@ -70,18 +67,15 @@
 
     <!-- Main Layout -->
     <div class="content-area">
-        <!-- Content -->
-        <main class="content">
-            <iframe name="content" id="iframe" src="./home.php"></iframe>
-        </main>
-    </div>
+        <iframe name="content" id="iframe" class="content" src="./home.php"></iframe>
 
-    <!-- Footer -->
-    <!-- Put the Status Selection on the bottom right IF LOGGED IN -->
-    <footer class="footer">
-        <p>This is a footer</p>
-        <p><b><a class="footer-nav-link" href="./contact-us.php" target="content">Contact Us</a></b></p>
-    </footer>
+        <!-- Footer -->
+        <!-- Put the Status Selection on the bottom right IF LOGGED IN -->
+        <!-- <footer class="footer">
+            <p>This is a footer</p>
+            <p><b><a class="footer-nav-link" href="./contact-us.php" target="content">Contact Us</a></b></p>
+        </footer> -->
+    </div>
 
     <script>
         // Some JavaScript to handle color change on tab clicking

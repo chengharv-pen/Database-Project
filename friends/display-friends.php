@@ -72,7 +72,7 @@
             $updateStmt->bindParam(':relationshipID', $relationshipID, PDO::PARAM_INT);
             $updateStmt->execute();
     
-            $message = "Relationship type updated successfully.";
+            $message = "Relationship type updated successfully. " . "[ " . $newRelationshipType . " ]";
         } elseif ($action === 'approve') {
             // Approve the friend request
             $updateStmt = $pdo->prepare("UPDATE Relationships SET Status = 'Active' WHERE RelationshipID = :relationshipID");
@@ -101,7 +101,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="../styles.css" rel="stylesheet"/>
+    <link href="../styles.css?<?php echo time(); ?>" rel="stylesheet"/>
 </head>
 <body>
     <?php if (isset($_GET['message'])): ?>

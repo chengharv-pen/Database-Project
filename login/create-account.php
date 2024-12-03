@@ -29,61 +29,66 @@
         $passwordInput = $_POST['password'] ?? '';
         $accountTypeInput = $_POST['accountType'] ?? '';
 
-        // Hash the password securely
-        $hashedPassword = password_hash($passwordInput, PASSWORD_DEFAULT);
+        // Validate email to ensure it's a ProtonMail email address
+        if (substr($emailInput, -12) !== '@protonmail.com') {
+            $feedback = "Email must be a ProtonMail address (e.g., user@protonmail.com).";
+        } else {
+            // Hash the password securely
+            $hashedPassword = password_hash($passwordInput, PASSWORD_DEFAULT);
 
-        // SQL query with placeholders
-        $sql = "INSERT INTO Members (
-                    Password,
-                    Username,
-                    FirstName,
-                    LastName,
-                    Pseudonym,
-                    Email,
-                    Address,
-                    DOB,
-                    DateJoined,
-                    Privilege,
-                    AccountType,
-                    NeedsPasswordChange,
-                    NeedsUsernameChange
-                ) VALUES (
-                    :password,
-                    :username,
-                    :firstName,
-                    :lastName,
-                    NULL,
-                    :email,
-                    NULL,
-                    :dob,
-                    CURDATE(),
-                    'Junior',
-                    :accountType,
-                    FALSE,
-                    FALSE
-                )";
+            // SQL query with placeholders
+            $sql = "INSERT INTO Members (
+                        Password,
+                        Username,
+                        FirstName,
+                        LastName,
+                        Pseudonym,
+                        Email,
+                        Address,
+                        DOB,
+                        DateJoined,
+                        Privilege,
+                        AccountType,
+                        NeedsPasswordChange,
+                        NeedsUsernameChange
+                    ) VALUES (
+                        :password,
+                        :username,
+                        :firstName,
+                        :lastName,
+                        NULL,
+                        :email,
+                        NULL,
+                        :dob,
+                        CURDATE(),
+                        'Junior',
+                        :accountType,
+                        FALSE,
+                        FALSE
+                    )";
 
-        try {
-            // Prepare the statement
-            $statement = $pdo->prepare($sql);
+            try {
+                // Prepare the statement
+                $statement = $pdo->prepare($sql);
 
-            // Bind values to the placeholders
-            $statement->bindParam(':password', $hashedPassword);
-            $statement->bindParam(':username', $usernameInput);
-            $statement->bindParam(':firstName', $firstNameInput);
-            $statement->bindParam(':lastName', $lastNameInput);
-            $statement->bindParam(':email', $emailInput);
-            $statement->bindParam(':dob', $DOBInput);
-            $statement->bindParam(':accountType', $accountTypeInput);
+                // Bind values to the placeholders
+                $statement->bindParam(':password', $hashedPassword);
+                $statement->bindParam(':username', $usernameInput);
+                $statement->bindParam(':firstName', $firstNameInput);
+                $statement->bindParam(':lastName', $lastNameInput);
+                $statement->bindParam(':email', $emailInput);
+                $statement->bindParam(':dob', $DOBInput);
+                $statement->bindParam(':accountType', $accountTypeInput);
 
-            // Execute the query and check success
-            if ($statement->execute()) {
-                $feedback = "User successfully added!";
-            } else {
-                $feedback = "Failed to add the user.";
+                // Execute the query and check success
+                if ($statement->execute()) {
+                    $feedback = "User successfully added!";
+                } else {
+                    $feedback = "Failed to add the user.";
+                }
+            } catch (PDOException $e) {
+                echo "Error: " . $e->getMessage();
             }
-        } catch (PDOException $e) {
-            echo "Error: " . $e->getMessage();
         }
     }
 ?>
@@ -94,7 +99,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Account!</title>
-    <link href="../styles.css" rel="stylesheet"/>
+    <link href="../styles.css?<?php echo time(); ?>" rel="stylesheet"/>
 </head>
 <body>
     <header>    
