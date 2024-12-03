@@ -25,10 +25,10 @@
         $receiverName = $_POST['receiverName'];
 
         // Fetch receiverID based on receiverName
-        $stmt = $pdo->prepare("SELECT * FROM Members WHERE Username = :username");
-        $stmt->bindParam(':username', $receiverName, PDO::PARAM_INT);
+        $stmt = $pdo->prepare("SELECT MemberID FROM Members WHERE Username = :username");
+        $stmt->bindParam(':username', $receiverName, PDO::PARAM_STR);
         $stmt->execute();
-        $receiverDetails = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $receiverDetails = $stmt->fetch(PDO::FETCH_ASSOC);
 
         $receiverID = $receiverDetails['MemberID'];
         $subject = htmlspecialchars($_POST['subject']);

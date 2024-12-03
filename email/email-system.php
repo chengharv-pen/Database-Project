@@ -63,9 +63,14 @@
 
                 if ($inboxEmails):
                     foreach ($inboxEmails as $email):
+                        // Fetch username of Receiver
+                        $stmt = $pdo->prepare("SELECT Username FROM Members WHERE MemberID = :receiverID");
+                        $stmt->bindParam(':receiverID', $email['SenderID'], PDO::PARAM_INT);
+                        $stmt->execute();
+                        $username = $stmt->fetch(PDO::FETCH_ASSOC);
             ?>
                 <div class="email-item">
-                    <strong>From:</strong> <?= htmlspecialchars($email['SenderID']); ?><br>
+                    <strong>From:</strong> <?= htmlspecialchars($username['Username']); ?><br>
                     <strong>Subject:</strong> <?= htmlspecialchars($email['Subject']); ?><br>
                     <p><?= htmlspecialchars($email['Body']); ?></p>
                     <small>Sent at: <?= $email['DateSent']; ?></small>
@@ -89,10 +94,15 @@
 
                 if ($sentEmails):
                     foreach ($sentEmails as $email):
+                        // Fetch username of Receiver
+                        $stmt = $pdo->prepare("SELECT Username FROM Members WHERE MemberID = :receiverID");
+                        $stmt->bindParam(':receiverID', $email['ReceiverID'], PDO::PARAM_INT);
+                        $stmt->execute();
+                        $username = $stmt->fetch(PDO::FETCH_ASSOC);
             ?>
                 <div class="email-item">
-                    <strong>To:</strong> <?= htmlspecialchars($email['ReceiverID']); ?><br>
-                    <strong>Subject:</strong> <?= htmlspecialchars($email['Subject']); ?><br>
+                    <strong>To:</strong> <?= htmlspecialchars($username['Username']); ?> <br>
+                    <strong>Subject:</strong> <?= htmlspecialchars($email['Subject']); ?> <br>
                     <p><?= htmlspecialchars($email['Body']); ?></p>
                     <small>Sent at: <?= $email['DateSent']; ?></small>
                 </div>

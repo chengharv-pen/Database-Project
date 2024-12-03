@@ -42,7 +42,6 @@ Filtered by Groups ❌
 
 6 - Chat
 Implement something similar to Discord's chat here? Only text, no pictures/videos for simplicity. ✅ (NEEDS STYLING)
-Is deleting messages necessary????????? ❌
 
 7 - Events
 Organize by voting between multiple date/time/place suggested by group members ❌
