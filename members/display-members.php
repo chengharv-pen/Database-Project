@@ -54,7 +54,19 @@
 </head>
 <body>
 
-    <h1>Your Profile</h1>
+    <div class=container-2-horizontal>
+        <div class="display-title">
+            <h1>Your Profile</h1>
+        </div>
+        
+        <div class="display-search-bar">
+            <!-- Search for a Profile by Username Input -->
+            <form action="./search-members.php" method="POST">
+                <input type="text" id="username" name="username" placeholder="Search by Username..." class="search-username" required>
+                <button type="submit" name="search-button" class="search-button">Search</button>
+            </form>
+        </div>
+    </div>
 
     <!-- Display YOUR Profile -->
     <div class="profile">
@@ -80,15 +92,6 @@
         </br>
         <a href="./delete-members.php">Want to delete your account?</a>
     </div>
-
-    <!-- Search for a Profile by Username Input -->
-    <h1> Search for a Member by Username </h1>
-    <form action="./search-members.php" method="POST">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" class="search-username" required>
-        
-        <button type="submit" name="search-button" class="search-button">Search</button>
-    </form>
     
 </body>
 </html>

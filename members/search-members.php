@@ -25,7 +25,7 @@
 
     $member = null;
     $blockingStatus = false; // Default to not blocked
-    $friendStatus = false; // Default to not friend
+    $friendStatus = ""; // Default to not friend
 
     // Handle search form submission
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -40,6 +40,64 @@
         try {
             $statement = $pdo->prepare($sql);
             $statement->bindParam(':username', $usernameInput, PDO::PARAM_STR);
+            $statement->execute();
+
+            // Fetch member details
+            $member = $statement->fetch(PDO::FETCH_ASSOC);
+
+            if (!$member) {
+                die("Searched Member not found.");
+            }
+
+            if ($member['MemberID'] === $loggedInUserID) {
+                die("Searched Member is the same as the login session");
+            }
+
+            // Check if the user is already blocked
+            $checkBlockSql = "SELECT 1 
+            FROM BlockedMembers 
+            WHERE BlockerID = :blocker AND BlockedID = :blocked";
+
+            $blockStmt = $pdo->prepare($checkBlockSql);
+            
+            $blockStmt->execute([
+                ':blocker' => $loggedInUserID,
+                ':blocked' => $member['MemberID']
+            ]);
+
+            $blockingStatus = $blockStmt->fetchColumn();
+
+            // Check if the user is already a friend
+            $checkFriendSql = "SELECT * FROM Relationships 
+                                WHERE (SenderMemberID = :sessionMemberID AND ReceiverMemberID = :targetMemberID)
+                                    OR (SenderMemberID = :targetMemberID AND ReceiverMemberID = :sessionMemberID)";
+
+            $friendStmt = $pdo->prepare($checkFriendSql);
+
+            $friendStmt = $pdo->prepare($checkFriendSql);
+            $friendStmt->bindParam(':sessionMemberID', $loggedInUserID, PDO::PARAM_INT);
+            $friendStmt->bindParam(':targetMemberID', $member['MemberID'], PDO::PARAM_INT);
+            $friendStmt->execute();
+
+            $friendStatus = $friendStmt->fetch(PDO::FETCH_ASSOC);
+
+        } catch (PDOException $e) {
+            die("Query failed: " . $e->getMessage());
+        }
+    }
+
+    // Handle redirect from request-friends.php
+    if ($_SERVER['REQUEST_METHOD'] == 'GET') {
+        $searchedMemberID = $_GET['requestID'];
+        
+        // Query to find user by MemberID
+        $sql = "SELECT * 
+                FROM Members 
+                WHERE MemberID = :memberID";
+
+        try {
+            $statement = $pdo->prepare($sql);
+            $statement->bindParam(':memberID', $searchedMemberID, PDO::PARAM_INT);
             $statement->execute();
 
             // Fetch member details
@@ -64,16 +122,16 @@
             $blockingStatus = $blockStmt->fetchColumn();
 
             // Check if the user is already a friend
-            $checkFriendSql = "SELECT 1
-            FROM Relationships 
-            WHERE MemberID1 = :senderMemberID AND MemberID2 = :receiverMemberID";
+            $checkFriendSql = "SELECT * FROM Relationships 
+                                WHERE (SenderMemberID = :sessionMemberID AND ReceiverMemberID = :targetMemberID)
+                                    OR (SenderMemberID = :targetMemberID AND ReceiverMemberID = :sessionMemberID)";
 
             $friendStmt = $pdo->prepare($checkFriendSql);
+            $friendStmt->bindParam(':sessionMemberID', $loggedInUserID, PDO::PARAM_INT);
+            $friendStmt->bindParam(':targetMemberID', $member['MemberID'], PDO::PARAM_INT);
+            $friendStmt->execute();
 
-            $friendStmt->bindParam(':senderMemberID', $loggedInUserID, PDO::PARAM_INT);
-            $friendStmt->bindParam(':senderMemberID', $member['MemberID'], PDO::PARAM_INT);
-
-            $friendStatus = $friendStmt->fetchColumn();
+            $friendStatus = $friendStmt->fetch(PDO::FETCH_ASSOC);
 
         } catch (PDOException $e) {
             die("Query failed: " . $e->getMessage());
@@ -89,8 +147,21 @@
     <link href="../styles.css" rel="stylesheet"/>
 </head>
 <body>
+    <?php
+    if (isset($_GET['message'])) {
+        echo '<p class="success-message">' . htmlspecialchars($_GET['message']) . '</p>';
+    }
+    ?>
 
-    <h1>Searched Profile</h1>
+    <div class=container-2-horizontal>
+        <div class="display-title">
+            <h1>Searched Profile</h1>
+        </div>
+        
+        <div class="display-search-bar">
+            <button type="submit" class="search-button" onclick="window.location.href='./display-members.php'">Go Back?</button>
+        </div>
+    </div>
 
     <!-- Display YOUR Profile -->
     <div class="profile">
@@ -111,15 +182,16 @@
         <button> See Posts </button>
 
         <form action="../friends/request-friends.php" method="POST">
-            <input type="hidden" name="member_id" value="<?php echo htmlspecialchars($member['MemberID']); ?>">
+            <input type="hidden" name="friend_member_id" value="<?php echo htmlspecialchars($member['MemberID']); ?>">
 
-            <?php if ($friendStatus): ?>
+            <?php if ($friendStatus['Status'] === 'Active'): ?>
                 <!-- If added as Friend, then show this -->
-                <button type="submit" name="action" value="remove_friend" class="friend-button"> Remove Friend </button> 
+                <button type="submit" name="remove_friend" value="remove_friend" class="remove-friend-button"> Remove Friend </button> 
             <?php else: ?>
                 <!-- If not added as Friend yet, then show this -->
-                <button type="submit" name="action" value="add_friend" class="friend-button"> Add to Friends </button>
+                <button type="submit" name="add_friend" value="add_friend" class="friend-button"> Add to Friends </button>
             <?php endif; ?>
+
         </form>
         
         <form action="./block-members.php" method="POST">

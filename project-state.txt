@@ -2,7 +2,7 @@
 O >>> Partially done
 ❌ >>> Not done
 
-Project State (MAIN FUNCTIONALITIES):
+-------------------------- Project State (MAIN FUNCTIONALITIES) --------------------------
 
 0 - Setup
 login ✅ 
@@ -27,10 +27,10 @@ Display Groups ✅
 Delete ✅
 
 3 - Friends (this is really relationships but we will go with this terminology)
-Create (send/approve friend request) ❌
+Create (send/approve friend request) ✅
 Edit (edit to Family/Friends/Colleagues/Other) ❌
-Delete (remove friend) ❌
-Display (display ALL friends) ❌
+Delete (remove friend) ✅
+Display (display ALL friends) ✅
 
 4 - Publishing Posts ❌
 
@@ -41,31 +41,29 @@ Latest posts ❌
 Filtered by Groups ❌
 
 6 - Chat
-I think I will just implement something similar to ROBLOX's chat here ❌
+Implement something similar to Discord's chat here? Only text, no pictures/videos for simplicity. ❌
 
 7 - Events
-NOTE: 1 AND 2 SHOULD BE DONE BEFORE DOING THIS
 Organize by voting between multiple date/time/place suggested by group members ❌
 
 8 - Gift Exchange of ideas
-wtf? ❌
+wtf???????????? ❌
 
-Project Intricacies:
+-------------------------- Project Intricacies -------------------------- 
 
-0 - Warning System
+0 - Warning System (oh hell nah)
 Incrementing warnings ❌
 Suspending an account ❌
 Fines (ONLY FOR BUSINESS ACCOUNTS) ❌
+Only Administrators should issue Warnings ❌
 
 1 - Email System
 how should i simulate this...? ❌
 
-2 - Administrator
-Only Administrators should issue Warnings ❌
-
-3 - Members Settings
-Inactive should act as a Offline Mode ❌
+2 - Members Settings
+Inactive should act as a "DND" Mode (can't text to the Inactive) ❌
 
 Junior >>> can post (has control over the scope of it), can control the comments. ❌
 Senior >>> can create groups and add people to groups ✅
-Admin >>> can change privilege/status of other members ❌
+Administrator >>> can change privilege/status of other members ❌
+

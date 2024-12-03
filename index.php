@@ -45,7 +45,7 @@
                 <a class="" href="./groups/display-groups.php" target="content">Groups</a>
             </div>
             <div class="tab">
-                <a class="" href="./friends/friends.php" target="content">Friends</a>
+                <a class="" href="./friends/display-friends.php" target="content">Friends</a>
             </div>
             <div class="tab">
                 <a class="" href="./publish-posts/publish-posts.php" target="content">Publish Posts</a>

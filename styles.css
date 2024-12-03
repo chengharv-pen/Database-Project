@@ -76,11 +76,10 @@ header {
 }
 
 iframe {
-    width: 97%;
-    height: 90%;
-    border-width: 20px;
-    border-color: black;
-    padding: 10px;
+    width: 98%;
+    height: 100%;
+    border: none;
+    padding: 20px;
 }
 
 /* Footer Styling */
@@ -94,7 +93,7 @@ footer {
 }
 
 /* Forms styling */
-input[type=text], input[type=password], input[type=email], input[type=date] {
+input[type="text"], input[type="password"], input[type="email"], input[type="date"] {
     width: 100%;
     padding: 12px 20px;
     margin: 8px 0;
@@ -104,7 +103,7 @@ input[type=text], input[type=password], input[type=email], input[type=date] {
     box-sizing: border-box;
   }
   
-button[type=submit] {
+button[type="submit"] {
     width: 100%;
     background-color: #4CAF50;
     color: white;
@@ -115,16 +114,16 @@ button[type=submit] {
     cursor: pointer;
 }
   
-button[type=submit]:hover {
+button[type="submit"]:hover {
     background-color: #45a049;
 }
 
-.delete-button[type=submit] {
+.delete-button[type="submit"] {
     width: 50%;
     background-color: red;
 }
 
-.delete-button[type=submit]:hover {
+.delete-button[type="submit"]:hover {
     background-color: rgb(104, 30, 30);
 }
   
@@ -148,6 +147,14 @@ button[type=submit]:hover {
     Members Display Styling
 
 */
+.display-title {
+    width: 30%;
+}
+
+.display-search-bar {
+    width: 70%;
+}
+
 .profile {
     width: 80%;
     margin: 20px auto;
@@ -157,21 +164,31 @@ button[type=submit]:hover {
     background-color: #f9f9f9;
 }
 
-.search-username[type=text] {
+.search-username[type="text"] {
     width: 30%;
     margin: 10px;
 }
 
-.search-button[type=submit] {
-    width: 30%;
-}
-
-.block-button[type=submit] {
+.search-button[type="submit"] {
     width: 10%;
 }
 
-.unblock-button[type=submit] {
+.block-button[type="submit"], 
+.remove-friend-button[type="submit"] {
     width: 10%;
+    background-color: red;
+}
+
+.unblock-button[type="submit"], 
+.friend-button[type="submit"] {
+    width: 10%;
+}
+
+.block-button[type="submit"]:hover,
+.remove-friend-button[type="submit"]:hover,
+.unblock-button[type="submit"]:hover,
+.friend-button[type="submit"]:hover {
+    background-color: #0056b3;
 }
 
 /*
