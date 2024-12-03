@@ -41,7 +41,8 @@ Latest posts ❌
 Filtered by Groups ❌
 
 6 - Chat
-Implement something similar to Discord's chat here? Only text, no pictures/videos for simplicity. ❌
+Implement something similar to Discord's chat here? Only text, no pictures/videos for simplicity. ✅ (NEEDS STYLING)
+Is deleting messages necessary????????? ❌
 
 7 - Events
 Organize by voting between multiple date/time/place suggested by group members ❌
@@ -58,7 +59,8 @@ Fines (ONLY FOR BUSINESS ACCOUNTS) ❌
 Only Administrators should issue Warnings ❌
 
 1 - Email System
-how should i simulate this...? ❌
+how should i simulate this...? ✅
+"CONS will allow only Proton email addresses!" ❌ (Does it mean a regex on Member creation?)
 
 2 - Members Settings
 Inactive should act as a "DND" Mode (can't text to the Inactive) ❌

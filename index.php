@@ -57,6 +57,9 @@
                 <a class="" href="./chat/chat.php" target="content">Chat</a>
             </div>
             <div class="tab">
+                <a class="" href="./email/email-system.php" target="content">Email</a>
+            </div>
+            <div class="tab">
                 <a class="" href="./events/events.php" target="content">Events</a>
             </div>
             <div class="tab">
