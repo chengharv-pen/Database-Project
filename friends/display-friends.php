@@ -3,7 +3,7 @@
     session_start();
 
     $memberID = $_SESSION['MemberID'];
-    $privilege = $_SESSION['Privilege'];
+    $privilege = $_SESSION['Privilege'];    
 
     // Check if user is authorized
     if (!isset($_SESSION['MemberID']) || !isset($_SESSION['Privilege'])) {
@@ -31,6 +31,7 @@
     $relationships = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     $requesterUsernames = [];
+    $senderUsernames = [];
     if ($relationships) {
         foreach ($relationships as $relationship) {
             // Determine the requester (the other member in the relationship)
@@ -43,6 +44,17 @@
             $userResult = $userStmt->fetch(PDO::FETCH_ASSOC);
             
             $requesterUsernames[$relationship['RelationshipID']] = $userResult ? $userResult['Username'] : 'Unknown';
+
+            // Determine the sender
+            $requesterID = $relationship['ReceiverMemberID'];
+            
+            // Fetch username for the sender
+            $userStmt = $pdo->prepare("SELECT Username FROM Members WHERE MemberID = :requesterID");
+            $userStmt->bindParam(':requesterID', $requesterID, PDO::PARAM_INT);
+            $userStmt->execute();
+            $userResult = $userStmt->fetch(PDO::FETCH_ASSOC);
+            
+            $senderUsernames[$relationship['RelationshipID']] = $userResult ? $userResult['Username'] : 'Unknown';
         }
     }
 
@@ -51,7 +63,17 @@
         $relationshipID = intval($_POST['relationship_id']);
         $action = $_POST['action'];
 
-        if ($action === 'approve') {
+        if ($action === 'update_relationship_type' && isset($_POST['relationship_type'])) {
+            $newRelationshipType = $_POST['relationship_type'];
+    
+            // Update the relationship type in the database
+            $updateStmt = $pdo->prepare("UPDATE Relationships SET RelationshipType = :relationshipType WHERE RelationshipID = :relationshipID");
+            $updateStmt->bindParam(':relationshipType', $newRelationshipType, PDO::PARAM_STR);
+            $updateStmt->bindParam(':relationshipID', $relationshipID, PDO::PARAM_INT);
+            $updateStmt->execute();
+    
+            $message = "Relationship type updated successfully.";
+        } elseif ($action === 'approve') {
             // Approve the friend request
             $updateStmt = $pdo->prepare("UPDATE Relationships SET Status = 'Active' WHERE RelationshipID = :relationshipID");
             $updateStmt->bindParam(':relationshipID', $relationshipID, PDO::PARAM_INT);
@@ -90,31 +112,61 @@
         <div class="display-friends">
             <h1>Display Friends</h1>
 
-            <!-- Print ONLY the relationships that are Active for the Session's MemberID -->
+            <!-- 
+                Print ONLY the relationships that are Active for the Session's MemberID 
+                We're going to reuse the styling from view-members-groups.php
+            -->
             <table>
                 <thead>
                     <tr>
                         <th>Username</th>
                         <th>Request Date</th>
-                        <th>Action</th>
+                        <th>Relationship Type</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <?php foreach ($relationships as $relationship): ?>
-                        <?php if ($relationship['Status'] === 'Active' && $relationship['ReceiverMemberID'] === $memberID): ?>
-                            <tr>
-                                <td><?= htmlspecialchars($requesterUsernames[$relationship['RelationshipID']] ?? 'Unknown') ?></td>
-                                <td><?= htmlspecialchars($relationship['CreationDate']) ?></td>
-                                <td>
-                                    <!-- Approve and Reject buttons -->
-                                    <form action="./display-friends.php" method="POST">
-                                        <input type="hidden" name="relationship_id" value="<?= htmlspecialchars($relationship['RelationshipID']); ?>">
-                                        <button type="submit" name="action" value="reject" class="remove-relationship">Remove</button>
-                                    </form>
-                                </td>
-                            </tr>
+                <?php foreach ($relationships as $relationship): ?>
+                    <tr>
+                    <?php if ($relationship['Status'] === 'Active' && 
+                             ($relationship['ReceiverMemberID'] === $memberID || $relationship['SenderMemberID'] === $memberID)): ?>
+
+                        <?php if ($relationship['SenderMemberID'] === $memberID): ?>
+                            <td><?= htmlspecialchars($senderUsernames[$relationship['RelationshipID']] ?? 'Unknown') ?></td>
                         <?php endif; ?>
-                    <?php endforeach; ?>
+
+                        <?php if ($relationship['ReceiverMemberID'] === $memberID): ?>
+                            <td><?= htmlspecialchars($requesterUsernames[$relationship['RelationshipID']] ?? 'Unknown') ?></td>
+                        <?php endif; ?>
+                            
+
+                        <td><?= htmlspecialchars($relationship['CreationDate']) ?></td>
+
+                        <!-- Relationship Type dropdown -->
+                        <td>
+                            <form action="./display-friends.php" method="POST">
+                                <input type="hidden" name="relationship_id" value="<?= htmlspecialchars($relationship['RelationshipID']); ?>">
+
+                                <select name="relationship_type">
+                                    <option value="Family" <?= $relationship['RelationshipType'] === 'Family' ? 'selected' : '' ?>>Family</option>
+                                    <option value="Friend" <?= $relationship['RelationshipType'] === 'Friend' ? 'selected' : '' ?>>Friend</option>
+                                    <option value="Colleague" <?= $relationship['RelationshipType'] === 'Colleague' ? 'selected' : '' ?>>Colleague</option>
+                                </select>
+
+                                <button type="submit" name="action" value="update_relationship_type">Update Type</button>
+                            </form>
+                        </td>
+
+                        <!-- Approve and Reject buttons -->
+                        <td>
+                            <form action="./display-friends.php" method="POST">
+                                <input type="hidden" name="relationship_id" value="<?= htmlspecialchars($relationship['RelationshipID']); ?>">
+                                <button type="submit" name="action" value="reject" class="remove-relationship">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <?php endif; ?>
+                <?php endforeach; ?>
                 </tbody>
             </table>
         </div>

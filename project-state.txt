@@ -28,7 +28,7 @@ Delete ✅
 
 3 - Friends (this is really relationships but we will go with this terminology)
 Create (send/approve friend request) ✅
-Edit (edit to Family/Friends/Colleagues/Other) ❌
+Edit (edit to Family/Friends/Colleagues/Other) ✅
 Delete (remove friend) ✅
 Display (display ALL friends) ✅
 

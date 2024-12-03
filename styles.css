@@ -213,7 +213,7 @@ button[type="submit"]:hover {
 
 /*
 
-    Tables Styling
+    View Members Groups Styling
 
 */
 .member-details {
@@ -239,10 +239,41 @@ button[type="submit"]:hover {
     font-weight: bold;
 }
 
+/*
+
+    Display Friends Styling
+
+*/
+table {
+    width: 100%;
+    border-collapse: collapse; /* Ensures borders are collapsed between cells */
+}
+
+th, td {
+    border: 1px solid black;  /* 1px solid black border for table cells */
+    padding: 8px;  /* Optional: Adds some padding inside the cells for better readability */
+    text-align: left;  /* Optional: Aligns text to the left */
+}
+
+th {
+    background-color: #f2f2f2;  /* Optional: Adds a background color to the table headers */
+}
+
+.remove-relationship[type="submit"] {
+    width: 100%;
+    background-color: red;
+}
+
+.remove-relationship[type="submit"]:hover {
+    background-color: darkred;
+}
+
 
 /* 
 
     Below is responsive web design styling
+
+    (TO BE MODIFIED AT THE END)
 
 */
 
