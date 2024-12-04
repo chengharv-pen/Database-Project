@@ -48,7 +48,7 @@ Filtered by Other's Posts ✅
 Edit Own Comments ❌
 Delete Comments in your Posts ❌
 Delete Your Comments in other Posts ❌
-Liking/Disliking Posts ✅
+Liking/Disliking Posts ✅ test
 
 6 - Chat
 Implement something similar to Discord's chat here? Only text, no pictures/videos for simplicity. ✅ (NEEDS STYLING)
