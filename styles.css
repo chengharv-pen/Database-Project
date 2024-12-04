@@ -429,9 +429,6 @@ th {
     Single Posts
 
 */
-.single-posts-container {
-}
-
 .single-posts {
     display: flex;
     flex-direction: row;
