@@ -298,16 +298,59 @@ th {
     Email Styling
 
 */
-.email-container { 
+.compose-email-container {
+    margin: 20px; 
+}
+
+.compose-button {
+    width: 10%;
+    padding: 20px;
+    background-color: lightblue;
+}
+
+.compose-button:hover {
+    background-color: rgb(81, 91, 224);
+}
+
+
+.email-container {
+    display: flex;
+    flex-direction: row;
+    height: 80%;
     margin: 20px; 
 }
 
 .email-list { 
+    width: 50%;
+    border: 5px solid black;
     margin: 20px 0; 
+    overflow-y: scroll;  /* Allows vertical scrolling */
+    scrollbar-width: none;  /* Hides scrollbar in Firefox */
 }
 .email-item { 
     border-bottom: 1px solid #ccc;
     padding: 10px;
+}
+
+.email-item.unread {
+    font-weight: bold;
+    background-color: #f9f9f9;
+}
+.email-item.read {
+    font-weight: normal;
+    background-color: #fff;
+}
+
+.email-details {
+    width: 50%;
+    padding: 20px;
+    background-color: white;
+}
+
+.email-details-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .popup-notification { 

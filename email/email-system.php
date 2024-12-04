@@ -17,23 +17,11 @@
     </div>
 
     <h1>Email System</h1>
+    <button class="compose-button" onclick="window.location.href='./compose-email.php';">Compose Email</button>
+
     <div class="email-container">
-        <h2>Compose Email</h2>
-        <form action="./send-email.php" method="POST">
-            <label for="receiverName">To:</label>
-            <input type="text" name="receiverName" id="receiverName" placeholder="Receiver Name" required><br><br>
-
-            <label for="subject">Subject:</label>
-            <input type="text" name="subject" id="subject" placeholder="Subject" required><br><br>
-
-            <label for="body">Body:</label><br>
-            <textarea name="body" id="body" rows="5" cols="60" required></textarea><br><br>
-
-            <button type="submit">Send Email</button>
-        </form>
-
-        <h2>Inbox</h2>
         <div class="email-list">
+            <h2>Inbox</h2>
             <?php
                 // Fetch emails for the inbox
                 $stmt = $pdo->prepare("SELECT * FROM Email WHERE ReceiverID = :memberID ORDER BY DateSent DESC");
@@ -49,22 +37,22 @@
                         $stmt->execute();
                         $username = $stmt->fetch(PDO::FETCH_ASSOC);
             ?>
-                <div class="email-item">
+                <div class="email-item <?= $email['ReadStatus'] ? 'read' : 'unread'; ?>">
                     <strong>From:</strong> <?= htmlspecialchars($username['Username']); ?><br>
-                    <strong>Subject:</strong> <?= htmlspecialchars($email['Subject']); ?><br>
-                    <p><?= htmlspecialchars($email['Body']); ?></p>
+                    <strong>Subject:</strong> 
+                    <a href="./view-inbox-email.php?emailID=<?= $email['EmailID']; ?>">
+                        <?= htmlspecialchars($email['Subject']); ?>
+                    </a><br>
                     <small>Sent at: <?= $email['DateSent']; ?></small>
                 </div>
-            <?php 
-                    endforeach;
-                else: 
-            ?>
+            <?php endforeach; ?>
+            <?php else: ?>
                 <p>No emails in your inbox.</p>
             <?php endif; ?>
         </div>
 
-        <h2>Sent Items</h2>
         <div class="email-list">
+            <h2>Sent Items</h2>
             <?php
                 // Fetch sent emails
                 $stmt = $pdo->prepare("SELECT * FROM Email WHERE SenderID = :memberID ORDER BY DateSent DESC");
@@ -80,16 +68,16 @@
                         $stmt->execute();
                         $username = $stmt->fetch(PDO::FETCH_ASSOC);
             ?>
-                <div class="email-item">
+                <div class="email-item read">
                     <strong>To:</strong> <?= htmlspecialchars($username['Username']); ?> <br>
-                    <strong>Subject:</strong> <?= htmlspecialchars($email['Subject']); ?> <br>
-                    <p><?= htmlspecialchars($email['Body']); ?></p>
+                    <strong>Subject:</strong>
+                    <a href="./view-sent-email.php?emailID=<?= $email['EmailID']; ?>">
+                        <?= htmlspecialchars($email['Subject']); ?>
+                    </a><br>
                     <small>Sent at: <?= $email['DateSent']; ?></small>
                 </div>
-            <?php 
-                    endforeach;
-                else: 
-            ?>
+            <?php endforeach; ?>
+            <?php else: ?>
                 <p>No sent emails.</p>
             <?php endif; ?>
         </div>
@@ -98,7 +86,10 @@
     <script>
         // Function to show notification
         function showNotification() {
-            document.getElementById('email-notification').style.display = 'block';
+            const notification = document.getElementById('email-notification');
+            if (notification.style.display !== 'block') {
+                notification.style.display = 'block';
+            }
         }
 
         // Function to hide notification
@@ -119,7 +110,7 @@
                 }
             };
             xhr.send();
-        }, 5000); // Check every 5 seconds
+        }, 30000); // Check every 30 seconds
     </script>
 </body>
 </html>
