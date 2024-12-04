@@ -12,7 +12,7 @@ create account ✅
 
 1 - Members
 Edit ✅
-Display ✅ (cleaner profile display later, also filter private info if friend/not friend)
+Display ✅
 Block ✅
 delete account ✅ 
 

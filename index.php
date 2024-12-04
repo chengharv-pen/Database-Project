@@ -91,7 +91,7 @@
                 <a class="" href="./email/email-system.php" target="content">Email</a>
             </div>
             <div class="tab">
-                <a class="" href="./events/events.php" target="content">Events</a>
+                <a class="" href="./events/display-events.php" target="content">Events</a>
             </div>
             <div class="tab">
                 <a class="" href="./gift-exchange/gift-exchange.php" target="content">Gift Exchange</a>
