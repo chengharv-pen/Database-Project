@@ -118,26 +118,26 @@
                 <div class="chat-history" id="chat-history">
                     <?php foreach ($messages as $message): ?>
                         <div class="chat-message">
+                            <?php 
+                                // Determine the name of the sender
+                                $senderID = $message['SenderID'];
+                                $receiverID = $message['ReceiverID'];
+
+                                // Fetch sender's username
+                                $stmt = $pdo->prepare("SELECT Username FROM Members WHERE MemberID = :senderID");
+                                $stmt->bindParam(':senderID', $senderID, PDO::PARAM_INT);
+                                $stmt->execute();
+                                $sender = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                                // Fetch receiver's username
+                                $stmt = $pdo->prepare("SELECT Username FROM Members WHERE MemberID = :receiverID");
+                                $stmt->bindParam(':receiverID', $receiverID, PDO::PARAM_INT);
+                                $stmt->execute();
+                                $receiver = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                                $isCurrentUser = ($senderID == $memberID); // Check if the message is sent by the current user
+                            ?> 
                             <div class="chat-message-box <?= $isCurrentUser ? 'right' : 'left'; ?>">
-                                <?php 
-                                    // Determine the name of the sender
-                                    $senderID = $message['SenderID'];
-                                    $receiverID = $message['ReceiverID'];
-
-                                    // Fetch sender's username
-                                    $stmt = $pdo->prepare("SELECT Username FROM Members WHERE MemberID = :senderID");
-                                    $stmt->bindParam(':senderID', $senderID, PDO::PARAM_INT);
-                                    $stmt->execute();
-                                    $sender = $stmt->fetch(PDO::FETCH_ASSOC);
-
-                                    // Fetch receiver's username
-                                    $stmt = $pdo->prepare("SELECT Username FROM Members WHERE MemberID = :receiverID");
-                                    $stmt->bindParam(':receiverID', $receiverID, PDO::PARAM_INT);
-                                    $stmt->execute();
-                                    $receiver = $stmt->fetch(PDO::FETCH_ASSOC);
-
-                                    $isCurrentUser = ($senderID == $memberID); // Check if the message is sent by the current user
-                                ?> 
                                 <strong>
                                     <?= $isCurrentUser ? "You: " : htmlspecialchars($sender['Username']) . ": "; ?> 
                                 </strong>
