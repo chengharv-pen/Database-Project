@@ -37,7 +37,7 @@
 
             }
             
-            header("Location: ../display-members.php");
+            header("Location: ./display-members.php");
             exit;
         } catch (PDOException $e) {
             die("Action failed: " . $e->getMessage());

@@ -8,24 +8,25 @@
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $content = $_POST['content'] ?? '';
         $visibility = $_POST['visibility'] ?? 'Group';
+        $groups = $_POST['groups'] ?? [];
         $mediaType = null;
         $mediaURL = null;
-
+    
         // Handle file upload if a file is provided
         if (isset($_FILES['media']) && $_FILES['media']['error'] === UPLOAD_ERR_OK) {
             $fileTmpPath = $_FILES['media']['tmp_name'];
             $fileName = basename($_FILES['media']['name']);
             $fileExtension = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
             $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'mp4', 'avi', 'mov', 'mkv'];
-
+    
             if (in_array($fileExtension, $allowedExtensions)) {
                 // Determine the media type based on the file extension
                 $mediaType = in_array($fileExtension, ['jpg', 'jpeg', 'png', 'gif']) ? 'Image' : 'Video';
-
+    
                 // Generate a unique file name
                 $newFileName = uniqid('media_', true) . '.' . $fileExtension;
                 $mediaURL = $uploadDir . $newFileName;
-
+    
                 // Move the uploaded file to the uploads directory
                 if (!move_uploaded_file($fileTmpPath, $mediaURL)) {
                     die("Error moving uploaded file.");
@@ -34,10 +35,10 @@
                 die("Invalid file type. Allowed types: " . implode(', ', $allowedExtensions));
             }
         }
-
+    
         try {
             $pdo->beginTransaction();
-
+    
             // Insert post
             $stmt = $pdo->prepare("
                 INSERT INTO Posts (AuthorID, Content, PostDate, VisibilitySettings) 
@@ -49,7 +50,7 @@
                 ':visibility' => $visibility,
             ]);
             $postID = $pdo->lastInsertId();
-
+    
             // Insert media if a file was uploaded
             if ($mediaType && $mediaURL) {
                 $stmt = $pdo->prepare("
@@ -62,7 +63,21 @@
                     ':media_url' => $mediaURL,
                 ]);
             }
-
+    
+            // Insert into PostGroups if the post is for specific groups
+            if ($visibility === 'Group' && !empty($groups)) {
+                $stmt = $pdo->prepare("
+                    INSERT INTO PostGroups (PostID, GroupID) 
+                    VALUES (:post_id, :group_id)
+                ");
+                foreach ($groups as $groupID) {
+                    $stmt->execute([
+                        ':post_id' => $postID,
+                        ':group_id' => $groupID
+                    ]);
+                }
+            }
+    
             $pdo->commit();
             echo "Post published successfully!";
         } catch (PDOException $e) {
@@ -87,11 +102,24 @@
         <textarea name="content" id="content" rows="5" required></textarea><br><br><br>
 
         <label for="visibility">Visibility:</label>
-        <select name="visibility" id="visibility">
+        <select name="visibility" id="visibility" onchange="toggleGroupSelection()">
             <option value="Public">Public</option>
             <option value="Group">Group</option>
             <option value="Private">Private</option>
         </select><br><br>
+
+        <div id="groupSelection" style="display: none;">
+            <label for="groups">Select Groups:</label>
+            <select name="groups[]" id="groups" multiple>
+                <!-- Populate this dynamically with groups from the database -->
+                <?php
+                    $stmt = $pdo->query("SELECT GroupID, GroupName FROM Groups");
+                    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                        echo "<option value='{$row['GroupID']}'>{$row['GroupName']}</option>";
+                    }
+                ?>
+            </select><br><br>
+        </div>
 
         <label for="media">Upload Media (Image/Video):</label><br>
         <input type="file" name="media" id="media" accept=".jpg,.jpeg,.png,.mp4,.avi,.mov,.mkv"><br><br>
@@ -109,6 +137,22 @@
                 fileInput.value = ''; // Clear the input
             }
         }
+
+        // Function to toggle the visibility of the group selection dropdown
+        function toggleGroupSelection() {
+            var visibility = document.getElementById('visibility').value;
+            var groupSelection = document.getElementById('groupSelection');
+
+            // Show the group selection only when "Group" is selected
+            if (visibility === 'Group') {
+                groupSelection.style.display = 'block';
+            } else {
+                groupSelection.style.display = 'none';
+            }
+        }
+
+        // Call the function on page load to set the correct visibility for the group selection
+        window.onload = toggleGroupSelection;
     </script>
 </body>
 </html>

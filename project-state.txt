@@ -34,15 +34,17 @@ Display (display ALL friends) ✅
 
 4 - Publishing Posts 
 Publish a Post ✅
-Should we make Members be able to post Posts for a singular Joined Group? ❌
+Should we make Members be able to post Posts for a singular Joined Group? ✅
 
 5 - Viewing Posts
 All posts ✅
-Best posts ❌
-Latest posts ❌
-Oldest posts ❌
-Filtered by Groups ❌
-Filtered by Friends ❌
+Best posts ✅
+Latest posts ✅
+Oldest posts ✅
+Filtered by Groups ✅
+Filtered by Friends ✅
+Filtered by Your Posts ✅
+Filtered by Other's Posts ✅
 Edit Own Comments ❌
 Delete Comments in your Posts ❌
 Delete Your Comments in other Posts ❌
