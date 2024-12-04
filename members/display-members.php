@@ -66,10 +66,10 @@
         <p>Region: <?php echo htmlspecialchars($member['Region']); ?></p>
         <p>Interests: <?php echo htmlspecialchars($member['Interests']); ?></p>
 
-        <p>Your Bio (Public):
+        <p>Your Bio (Public):</p>
         <p><?php echo htmlspecialchars($member['PublicInformation']); ?></p>
 
-        <p>Your Bio (Private):
+        <p>Your Bio (Private):</p>
         <p><?php echo htmlspecialchars($member['PrivateInformation']); ?></p>
 
         

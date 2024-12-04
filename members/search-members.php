@@ -7,6 +7,7 @@
     $member = null;
     $blockingStatus = false; // Default to not blocked
     $friendStatus = ""; // Default to not friend
+    $privilegesArray = ['Administrator', 'Senior', 'Junior'];
 
     // Handle search form submission
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -155,10 +156,36 @@
         <p>Region: <?php echo htmlspecialchars($member['Region']); ?></p>
         <p>Interests: <?php echo htmlspecialchars($member['Interests']); ?></p>
 
+        <p>Your Bio (Public):</p>
         <p><?php echo htmlspecialchars($member['PublicInformation']); ?></p>
+
+        <!-- Only show Private Bio if the users are friends -->
+        <?php if ($friendStatus && isset($friendStatus['Status']) && $friendStatus['Status'] === 'Active'): ?>
+            <p>Your Bio (Private):</p>
+            <p><?php echo htmlspecialchars($member['PrivateInformation']); ?></p>
+        <?php else: ?>
+            <p>Your Bio (Private): Access restricted. You are not friends with this member.</p>
+        <?php endif; ?>
 
         
         <p>Contact me: <?php echo htmlspecialchars($member['Email']); ?></p>
+
+        <!-- Only show this form to Administrators -->
+        <?php if ($privilege === 'Administrator'): ?>
+            <form action="./update-member-privilege.php" method="POST">
+                <input type="hidden" name="member_id" value="<?php echo htmlspecialchars($member['MemberID']); ?>">
+                <label for="new_privilege">Change Privilege:</label>
+                <select name="new_privilege" id="new_privilege">
+                    <?php foreach ($privilegesArray as $privilegeEntry): ?>
+                        <option value="<?= $privilegeEntry ?>" <?php echo ($member['Privilege'] === $privilegeEntry) ? 'selected' : ''; ?>>
+                            <?= $privilegeEntry ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <button type="submit">Change Privilege</button>
+            </form><br>
+        <?php endif; ?>
+
 
         <form action="../friends/request-friends.php" method="POST">
             <input type="hidden" name="friend_member_id" value="<?php echo htmlspecialchars($member['MemberID']); ?>">
@@ -171,7 +198,7 @@
                 <!-- If not added as Friend yet, then show this -->
                 <button type="submit" name="add_friend" value="add_friend" class="friend-button"> Add to Friends </button>
             <?php endif; ?>
-        </form>
+        </form><br>
         
         <form action="./block-members.php" method="POST">
             <input type="hidden" name="member_id" value="<?php echo htmlspecialchars($member['MemberID']); ?>">
