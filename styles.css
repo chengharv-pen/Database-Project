@@ -193,6 +193,18 @@ input[type="text"], input[type="password"], input[type="email"], input[type="dat
     background-color: #0056b3;
 }
 
+.result-row {
+    display: flex; /* Use flexbox for alignment */
+    flex-direction: row;
+    align-items: center; /* Vertically align items */
+    margin-bottom: 10px; /* Add spacing between rows */
+}
+
+.filtered-search-button {
+    padding: 5px;
+    margin-left: 10px;
+}
+
 /*
 
     Groups Edit Members Styling
@@ -369,7 +381,6 @@ th {
     Posts Styling
 
 */
-.comment-button[type="submit"],
 .publish-button[type="submit"]  {
     width: 20%;
 }
@@ -402,17 +413,30 @@ th {
     border: 1px solid #ccc; /* Optional: Add a border for better visibility */
 }
 
-.single-posts-container {
+.post-feedback-buttons {
     display: flex;
-    flex-direction: column;
-    overflow-y: scroll;  /* Allows vertical scrolling */
-    scrollbar-width: none;  /* Hides scrollbar in Firefox */
+    flex-direction: row;
+    justify-content: center; /* Align buttons to the left */
+    align-items: center; /* Vertically center the buttons */
+}
+
+.like-button, .dislike-button {
+    margin: 10px;
+}
+
+/*
+
+    Single Posts
+
+*/
+.single-posts-container {
 }
 
 .single-posts {
     display: flex;
     flex-direction: row;
     align-items: center;
+    align-items: flex-start; /* Aligns the items to the top */
 }
 
 .single-post {
@@ -423,23 +447,78 @@ th {
     border: 1px solid black;
 }
 
+.comment-button[type="submit"] {
+    width: 20%;
+}
+
 .single-comments {
-    text-align: center;
     width: 50%;
     padding: 5px;
     margin: 5px;
     border: 1px solid black;
+    overflow-y: scroll;  /* Allows vertical scrolling */
+    scrollbar-width: none;  /* Hides scrollbar in Firefox */
 }
 
-.post-feedback-buttons {
-    display: flex;
-    flex-direction: row;
-    justify-content: center; /* Align buttons to the left */
-    align-items: center; /* Vertically center the buttons */
+/* Comment wrapper */
+.comment-wrapper {
+    margin-bottom: 20px;
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
 }
 
-.like-button, .dislike-button {
-    margin: 10px;
+.comment-wrapper .comment {
+    margin-bottom: 10px;
+}
+
+.comment-wrapper p {
+    margin: 5px 0;
+}
+
+.comment-wrapper .comment p strong {
+    color: #007bff;
+    font-weight: bold;
+}
+
+/* Comment Content */
+.comment-wrapper .comment p {
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.edit-comment textarea {
+    width: 100%;
+    padding: 8px;
+    font-size: 14px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+}
+
+.edit-comment button, .delete-comment button {
+    padding: 6px 12px;
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    background-color: #007bff;
+    color: white;
+    transition: background-color 0.3s;
+}
+
+.edit-comment button:hover, .delete-comment button:hover {
+    background-color: #0056b3;
+}
+
+/* Delete button */
+.delete-comment button {
+    background-color: #dc3545;
+}
+
+.delete-comment button:hover {
+    background-color: #c82333;
 }
 
 /* 

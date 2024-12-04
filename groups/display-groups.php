@@ -81,6 +81,9 @@
         <br>
         <a href="./create-groups.php">Want to Create Groups?</a>
     <?php endif; ?>
+    
+    <br>
+    <a href="./filtered-groups.php">Want a more Filtered Search?</a>
 
     <!-- Display groups based on selection -->
     <div class="groups">
@@ -94,7 +97,8 @@
         <div class="group">
             <div class="group-names">
                 <strong><?= htmlspecialchars($group['GroupName']) ?></strong>
-                (<?= htmlspecialchars($group['GroupType']) ?>, <?= htmlspecialchars($group['Region']) ?>)
+                (<?= htmlspecialchars($group['GroupType']) ?>, <?= htmlspecialchars($group['Region']) ?>)<br><br>
+                Interest Category: <?= htmlspecialchars($group['InterestCategory']) ?>
             </div>
 
             <?php if ($view === 'joined'): ?>

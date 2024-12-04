@@ -160,19 +160,17 @@
         
         <p>Contact me: <?php echo htmlspecialchars($member['Email']); ?></p>
 
-        <button> See Posts </button>
-
         <form action="../friends/request-friends.php" method="POST">
             <input type="hidden" name="friend_member_id" value="<?php echo htmlspecialchars($member['MemberID']); ?>">
-
-            <?php if ($friendStatus === 'Active'): ?>
+            <?php 
+            // Check if a relationship was found before accessing 'Status'
+            if ($friendStatus && isset($friendStatus['Status']) && $friendStatus['Status'] === 'Active'): ?>
                 <!-- If added as Friend, then show this -->
                 <button type="submit" name="remove_friend" value="remove_friend" class="remove-friend-button"> Remove Friend </button> 
             <?php else: ?>
                 <!-- If not added as Friend yet, then show this -->
                 <button type="submit" name="add_friend" value="add_friend" class="friend-button"> Add to Friends </button>
             <?php endif; ?>
-
         </form>
         
         <form action="./block-members.php" method="POST">

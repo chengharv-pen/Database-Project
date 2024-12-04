@@ -1,7 +1,11 @@
 <?php
     // Fetch the comments for this post
-    $commentStmt = $pdo->prepare("SELECT c.CommentID, c.AuthorID, c.Content, c.CreationDate 
-        FROM Comments c WHERE c.PostID = :post_id ORDER BY c.CreationDate ASC");
+    $commentStmt = $pdo->prepare("
+        SELECT c.CommentID, c.AuthorID, c.Content, c.CreationDate 
+        FROM Comments c 
+        WHERE c.PostID = :post_id 
+        ORDER BY c.CreationDate DESC
+    ");
     $commentStmt->execute([':post_id' => $postID]);
     $comments = $commentStmt->fetchAll(PDO::FETCH_ASSOC);
 

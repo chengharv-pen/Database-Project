@@ -98,6 +98,7 @@
                 <thead>
                     <tr>
                         <th>Username</th>
+                        <th>Status</th>
                         <th>Request Date</th>
                         <th>Relationship Type</th>
                         <th>Actions</th>
@@ -117,7 +118,8 @@
                             <td><?= htmlspecialchars($requesterUsernames[$relationship['RelationshipID']] ?? 'Unknown') ?></td>
                         <?php endif; ?>
                             
-
+                        <td>Status</td>
+                        
                         <td><?= htmlspecialchars($relationship['CreationDate']) ?></td>
 
                         <!-- Relationship Type dropdown -->

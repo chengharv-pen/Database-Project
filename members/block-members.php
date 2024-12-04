@@ -23,6 +23,17 @@
                     ':reason' => $_POST['reason'] ?? null
                 ]);
 
+                // Remove any existing relationships (this could be automated using a trigger, but this works)
+                $deleteRelationshipsSql = "DELETE FROM Relationships 
+                                            WHERE (SenderMemberID = :blocker AND ReceiverMemberID = :blocked)
+                                               OR (SenderMemberID = :blocked AND ReceiverMemberID = :blocker)";
+                
+                $deleteRelationshipsStmt = $pdo->prepare($deleteRelationshipsSql);
+                $deleteRelationshipsStmt->execute([
+                    ':blocker' => $loggedInUserID,
+                    ':blocked' => $blockedID
+                ]);
+
             } elseif ($_POST['action'] === 'unblock') {
                 // Remove from BlockedMembers
                 $unblockSql = "DELETE FROM BlockedMembers 
@@ -34,7 +45,6 @@
                     ':blocker' => $loggedInUserID,
                     ':blocked' => $blockedID
                 ]);
-
             }
             
             header("Location: ./display-members.php");

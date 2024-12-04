@@ -21,6 +21,11 @@
             die("Member not found.");
         }
 
+        // Calculate age
+        $dob = new DateTime($member['DOB']);
+        $today = new DateTime();
+        $age = $today->diff($dob)->y; // Get the difference in years
+
     } catch (PDOException $e) {
         die("Query failed: " . $e->getMessage());
     }
@@ -55,23 +60,54 @@
         <p>Last Login: <?php echo htmlspecialchars($member['LastLogin']); ?></p>
         <p>Join Date: <?php echo htmlspecialchars($member['DateJoined']); ?></p>
 
+        <p>Age: <?php echo $age; ?> years</p>
         <p>Status: <?php echo htmlspecialchars($member['Status']); ?></p>
         <p>Profession: <?php echo htmlspecialchars($member['Profession']); ?></p>
         <p>Region: <?php echo htmlspecialchars($member['Region']); ?></p>
         <p>Interests: <?php echo htmlspecialchars($member['Interests']); ?></p>
 
+        <p>Your Bio (Public):
         <p><?php echo htmlspecialchars($member['PublicInformation']); ?></p>
+
+        <p>Your Bio (Private):
+        <p><?php echo htmlspecialchars($member['PrivateInformation']); ?></p>
 
         
         <p>Contact me: <?php echo htmlspecialchars($member['Email']); ?></p>
-
-        <button> See Your Posts </button>
 
         </br>
         </br>
         <a href="./edit-members.php">Edit Display Information?</a>
         </br>
         <a href="./delete-members.php">Want to delete your account?</a>
+    </div>
+
+    <div class="display-search-bar">
+        <h3> Filtered Search </h3>
+        <!-- Search for a Profile by Filters -->
+        <form action="./filtered-search-members.php" method="POST">
+            <!-- Interest Filter -->
+            <label for="interest">Interest:</label>
+            <input type="text" id="interest" name="interest" placeholder="Enter interest">
+                
+            <!-- Age Range Filter -->
+            <label for="min-age">Min Age (years):</label>
+            <input type="number" id="min-age" name="min_age" min="0" placeholder="Min Age"><br><br>
+                
+            <label for="max-age">Max Age (years):</label>
+            <input type="number" id="max-age" name="max_age" min="0" placeholder="Max Age"><br><br>
+                
+            <!-- Profession Filter -->
+            <label for="profession">Profession:</label>
+            <input type="text" id="profession" name="profession" placeholder="Enter profession">
+                
+            <!-- Region Filter -->
+            <label for="region">Region:</label>
+            <input type="text" id="region" name="region" placeholder="Enter region">
+                
+            <!-- Submit Button -->
+            <button type="submit" name="search-button" class="search-button">Search by Filters</button>
+        </form>
     </div>
     
 </body>

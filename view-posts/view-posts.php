@@ -104,64 +104,65 @@
                     </p>
                     <div class="post-feedback-buttons">
                         <!-- Show appropriate buttons -->
-                        <div class="like-button">
                         <?php
                             $userLiked = false; // Initialize the variable
+                            $userDisliked = false; // Initialize the variable for dislike
 
+                            // Check if the user has liked the post
                             $stmt = $pdo->prepare("SELECT * FROM PostLikes WHERE PostID = :postID AND UserID = :memberID");
                             $stmt->execute([':postID' => $post['PostID'], ':memberID' => $memberID]);
 
                             $existingLike = $stmt->fetch(PDO::FETCH_ASSOC);
-
                             if ($existingLike !== false) {
                                 $userLiked = true;
                             }
 
-                            if ($userLiked): ?>
-                                <!-- User has liked the post, so show "Remove Like" -->
-                                <form action="./like-posts.php" method="POST">
-                                    <input type="hidden" name="post_id" value="<?= $post['PostID'] ?>">
-                                    <button type="submit">Remove Like</button>
-                                </form>
-                            <?php else: ?>
-                                <!-- User hasn't liked the post, so show "Like" -->
-                                <form action="./like-posts.php" method="POST">
-                                    <input type="hidden" name="post_id" value="<?= $post['PostID'] ?>">
-                                    <button type="submit">Like</button>
-                                </form>
-                            <?php endif; ?>
-                        </div>
-                        
-                        <div class="dislike-button">
-                        <?php
-                            $userDisliked = false; // Initialize the variable
-
+                            // Check if the user has disliked the post
                             $stmt = $pdo->prepare("SELECT * FROM PostDislikes WHERE PostID = :postID AND UserID = :memberID");
                             $stmt->execute([':postID' => $post['PostID'], ':memberID' => $memberID]);
 
-                            $existingLike = $stmt->fetch(PDO::FETCH_ASSOC);
-
-                            if ($existingLike !== false) {
+                            $existingDislike = $stmt->fetch(PDO::FETCH_ASSOC);
+                            if ($existingDislike !== false) {
                                 $userDisliked = true;
                             }
 
-                            if ($userDisliked): ?>
+                            // Display the appropriate buttons based on the like/dislike status
+                            if ($userLiked && !$userDisliked): ?>
+                                <!-- User has liked the post, so show "Remove Like" -->
+                                <div class="like-button">
+                                    <form action="./like-posts.php" method="POST">
+                                        <input type="hidden" name="post_id" value="<?= $post['PostID'] ?>">
+                                        <button type="submit">Remove Like</button>
+                                    </form>
+                                </div>
+                            <?php elseif (!$userLiked && !$userDisliked): ?>
+                                <!-- User hasn't liked or disliked the post, so show both "Like" and "Dislike" -->
+                                <div class="like-button">
+                                    <form action="./like-posts.php" method="POST">
+                                        <input type="hidden" name="post_id" value="<?= $post['PostID'] ?>">
+                                        <button type="submit">Like</button>
+                                    </form>
+                                </div>
+                                <div class="dislike-button">
+                                    <form action="dislike-posts.php" method="POST">
+                                        <input type="hidden" name="post_id" value="<?= $post['PostID'] ?>">
+                                        <button type="submit">Dislike</button>
+                                    </form>
+                                </div>
+                            <?php elseif (!$userLiked && $userDisliked): ?>
                                 <!-- User has disliked the post, so show "Remove Dislike" -->
-                                <form action="dislike-posts.php" method="POST">
-                                    <input type="hidden" name="post_id" value="<?= $post['PostID'] ?>">
-                                    <button type="submit">Remove Dislike</button>
-                                </form>
-                            <?php else: ?>
-                                <!-- User hasn't disliked the post, so show "Dislike" -->
-                                <form action="dislike-posts.php" method="POST">
-                                    <input type="hidden" name="post_id" value="<?= $post['PostID'] ?>">
-                                    <button type="submit">Dislike</button>
-                                </form>
+                                <div class="dislike-button">
+                                    <form action="dislike-posts.php" method="POST">
+                                        <input type="hidden" name="post_id" value="<?= $post['PostID'] ?>">
+                                        <button type="submit">Remove Dislike</button>
+                                    </form>
+                                </div>
                             <?php endif; ?>
-                        </div>
                     </div>
 
-                    <p><strong>Comments:</strong> <?= $post['CommentsCount'] ?> | <a href="inspect-single-post.php?post_id=<?= $post['PostID'] ?>">View Comments</a></p>
+                    <p><strong>Comments:</strong> <?= $post['CommentsCount'] ?> | 
+                        <a href="inspect-single-post.php?post_id=<?= htmlspecialchars($post['PostID']) ?>">View Comments</a>
+                    </p>
 
                     <?php if ($post['AuthorID'] === $memberID): ?>
                         <form action="./delete-posts.php" method="POST">

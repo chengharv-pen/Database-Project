@@ -56,7 +56,8 @@
         try {
             // Check if a relationship already exists
             $stmt = $pdo->prepare("SELECT * FROM Relationships 
-                                WHERE SenderMemberID = :currentMember AND ReceiverMemberID = :friendMember;");
+                                WHERE (SenderMemberID = :currentMember AND ReceiverMemberID = :friendMember)
+                                OR (SenderMemberID = :friendMember AND ReceiverMemberID = :currentMember);");
 
             $stmt->execute([
                 ':currentMember' => $currentMemberID,
@@ -69,7 +70,8 @@
 
             // Delete the existing relationship
             $stmt = $pdo->prepare("DELETE FROM Relationships
-                                    WHERE SenderMemberID = :currentMember AND ReceiverMemberID = :friendMember;");
+                                    WHERE (SenderMemberID = :currentMember AND ReceiverMemberID = :friendMember)
+                                    OR (SenderMemberID = :friendMember AND ReceiverMemberID = :currentMember);");
 
             $stmt->execute([
                 ':currentMember' => $currentMemberID,

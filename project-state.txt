@@ -45,23 +45,23 @@ Filtered by Groups ✅
 Filtered by Friends (Private) ✅
 Filtered by Your Posts ✅
 Filtered by Other's Posts ✅
-Edit Own Comments ❌
-Delete Comments in your Posts ❌
-Delete Your Comments in other Posts ❌
-Liking/Disliking Posts ✅ test
+Edit Own Comments ✅
+Delete Comments in your Posts ✅
+Delete Your Comments in other Posts ✅
+Liking/Disliking Posts ✅
 
 6 - Chat
-Implement something similar to Discord's chat here? Only text, no pictures/videos for simplicity. ✅ (NEEDS STYLING)
+Implement something similar to Discord's chat here? Only text, no pictures/videos for simplicity. ✅
 
 7 - Events
 Organize by voting between multiple date/time/place suggested by group members ❌
 
 8 - Gift Exchange of ideas
-wtf???????????? ❌
+how???????????? ❌
 
 -------------------------- Project Intricacies -------------------------- 
 
-0 - Warning System (oh hell nah)
+0 - Warning System (this is most likely a skip due to time constraints)
 Incrementing warnings ❌
 Suspending an account ❌
 Fines (ONLY FOR BUSINESS ACCOUNTS) ❌
@@ -69,14 +69,14 @@ Only Administrators should issue Warnings ❌
 
 1 - Email System
 how should i simulate this...? ✅
-"CONS will allow only Proton email addresses!" ✅ (Does it mean a regex on Member creation?)
+"CONS will allow only Proton email addresses!" ✅
 
 2 - Members Settings
-Inactive should act as a "DND" Mode (can't text to the Inactive) ❌
+A Member should be Inactive if he is not logged in. ❌
 
 We should prompt for new Username/Password if NeedsUsernameChange/NeedsPasswordChange are TRUE ❌
 
-Junior >>> can post (has control over the scope of it), can control the comments. O
+Junior >>> can post (has control over the scope of it), can control the comments. ✅
 Senior >>> can create groups and add people to groups ✅
 Administrator >>> can change privilege/status of other members ❌
 
