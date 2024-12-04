@@ -21,9 +21,6 @@
         if (!$messages) {
             $messages = ["There are no messages in this"];
         }
-
-        // Send the messages as a JSON response (TESTING PURPOSES)
-        // echo json_encode($messages);
     }
 
     // Handle sending a message
@@ -71,60 +68,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat System</title>
     <link href="../styles.css?<?php echo time(); ?>" rel="stylesheet"/>
+    <link href="./chat.css?<?php echo time(); ?>" rel="stylesheet"/>
 </head>
 <body>
-    <h1>Chat</h1>
-
-    <!-- Show message success or error -->
-    <?php if (isset($message)): ?>
-        <p class="message"><?= htmlspecialchars($message); ?></p>
-    <?php endif; ?>
     
     <div class="chat-container">
+        <!-- Show message success or error -->
+        <?php if (isset($message)): ?>
+            <p class="message"><?= htmlspecialchars($message); ?></p>
+        <?php endif; ?>
 
-        <div class="chat-display-messages">
-            <!-- Chat with a specific member -->
-            <?php if (isset($messages) && !empty($messages)): ?>
-                <h2>Chat History</h2>
-                <div class="chat-history">
-                    <?php foreach ($messages as $message): ?>
-                        <div class="message">
-                            <strong>
-                                <?php 
-                                    // Determine the name of the sender
-                                    $senderID = $message['SenderID'];
-                                    $receiverID = $message['ReceiverID'];
-
-                                    // Fetch sender's username
-                                    $stmt = $pdo->prepare("SELECT Username FROM Members WHERE MemberID = :senderID");
-                                    $stmt->bindParam(':senderID', $senderID, PDO::PARAM_INT);
-                                    $stmt->execute();
-                                    $sender = $stmt->fetch(PDO::FETCH_ASSOC);
-
-                                    // Fetch receiver's username
-                                    $stmt = $pdo->prepare("SELECT Username FROM Members WHERE MemberID = :receiverID");
-                                    $stmt->bindParam(':receiverID', $receiverID, PDO::PARAM_INT);
-                                    $stmt->execute();
-                                    $receiver = $stmt->fetch(PDO::FETCH_ASSOC);
-
-                                    // Display the member name (either "You" or their actual name)
-                                    if ($senderID == $memberID) {
-                                        echo "You: ";
-                                    } else {
-                                        echo htmlspecialchars($sender['Username']) . ": ";
-                                    }
-                                ?> 
-                            </strong>
-                            <p><?= htmlspecialchars($message['Content']); ?></p>
-                            <small>Sent at: <?= $message['DataSent']; ?></small>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-            <?php else: ?>
-                <p>No chat history available.</p>
-            <?php endif; ?>
-        </div>
-        
+        <!-- Get the friends to chat with -->
         <div class="chat-get-form">
             <form id="get-chat-logs" action="chat.php" method="GET">
                 <?php 
@@ -158,16 +112,57 @@
             </form>
         </div>
 
-        <div class="chat-send-form">
-            <!-- Send a new message -->
-            <h2>Send a Message</h2>
-            <form action="chat.php" method="POST">
-                <label for="message">Message:</label>
-                </br>
-                <textarea name="message" id="message" rows="4" cols="100" required></textarea>
+        <div class="chat-display-messages">
+            <!-- Chat with a specific member -->
+            <?php if (isset($messages) && !empty($messages)): ?>
+                <div class="chat-history" id="chat-history">
+                    <?php foreach ($messages as $message): ?>
+                        <div class="chat-message">
+                            <div class="chat-message-box <?= $isCurrentUser ? 'right' : 'left'; ?>">
+                                <?php 
+                                    // Determine the name of the sender
+                                    $senderID = $message['SenderID'];
+                                    $receiverID = $message['ReceiverID'];
 
-                <button type="submit">Send Message</button>
-            </form>
+                                    // Fetch sender's username
+                                    $stmt = $pdo->prepare("SELECT Username FROM Members WHERE MemberID = :senderID");
+                                    $stmt->bindParam(':senderID', $senderID, PDO::PARAM_INT);
+                                    $stmt->execute();
+                                    $sender = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                                    // Fetch receiver's username
+                                    $stmt = $pdo->prepare("SELECT Username FROM Members WHERE MemberID = :receiverID");
+                                    $stmt->bindParam(':receiverID', $receiverID, PDO::PARAM_INT);
+                                    $stmt->execute();
+                                    $receiver = $stmt->fetch(PDO::FETCH_ASSOC);
+
+                                    $isCurrentUser = ($senderID == $memberID); // Check if the message is sent by the current user
+                                ?> 
+                                <strong>
+                                    <?= $isCurrentUser ? "You: " : htmlspecialchars($sender['Username']) . ": "; ?> 
+                                </strong>
+                                <p><?= htmlspecialchars($message['Content']); ?></p>
+                                <small>Sent at: <?= $message['DataSent']; ?></small>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            <?php else: ?>
+                <p>No chat history available.</p>
+            <?php endif; ?>
+
+            
+                <!-- Send a new message -->
+                <form action="chat.php" method="POST">
+                    <div class="chat-send-form">  
+                        <div class="text-message">
+                            <textarea name="message" id="message" rows="3" cols="120" required></textarea>
+                        </div>
+                        <div class="text-message-send">
+                            <button type="submit" class="chat-send-button">Send</button>
+                        </div>
+                    </div>
+                </form>
         </div>
     </div>
     
@@ -191,7 +186,7 @@
             form.submit();
         }
 
-        // Function to refresh chat history every 5 seconds (TODO: TEST THIS EVENTUALLY)
+        // Function to refresh chat history every 5 seconds
         function refreshChatHistory() {
             // Fetch the current chatWithID from the session (or any method you are using to track the current chat)
             const chatWithID = <?php echo isset($chatWithID) ? $chatWithID : 0; ?>;
@@ -226,6 +221,25 @@
 
         // Set an interval to refresh chat history every 5 seconds
         setInterval(refreshChatHistory, 5000);
+
+        // Some JavaScript that automatically scrolls the scroll wheel to the bottom for Chat History
+        function scrollToBottom() {
+            const chatHistory = document.getElementById('chat-history');
+            chatHistory.scrollTop = chatHistory.scrollHeight; // Scroll to the bottom
+        }
+
+        // Call the function when the page loads
+        window.onload = scrollToBottom();
+
+        // Call the function whenever new messages are added
+        function addMessage(message) {
+            const chatHistory = document.getElementById('chat-history');
+            const newMessage = document.createElement('p');
+            newMessage.textContent = message;
+            chatHistory.appendChild(newMessage);
+
+            scrollToBottom(); // Ensure scrolling happens after the message is added
+        }
     </script>
 
 </body>

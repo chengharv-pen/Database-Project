@@ -1,0 +1,183 @@
+/* 
+
+    Chat Styling 
+
+*/
+
+.chat-container {
+    display: flex;
+    flex-direction: row;
+    height: 100vh; /* Full viewport height */
+    border: 2px solid black;
+    overflow: hidden; /* Prevent content from overflowing */
+}
+
+.chat-display-messages {
+    width: 70%;
+    height: 100%;
+    border: 1px solid black;
+    box-sizing: border-box; /* Ensures padding and borders don't affect width/height */
+    overflow-y: scroll;  /* Allows vertical scrolling */
+    scrollbar-width: none;  /* Hides scrollbar in Firefox */
+}
+
+.chat-get-form {
+    width: 30%;
+    height: 100%;
+    border: 1px solid black;
+    box-sizing: border-box; /* Ensures padding and borders don't affect width/height */
+}
+
+/* Chat Display Section */
+.chat-display-messages {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    background-color: #f9f9f9; /* Light background for better contrast */
+}
+
+/* Chat History */
+.chat-history {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Expands to fill available space */
+    overflow-y: auto; /* Smooth scrolling */
+    padding: 10px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    scrollbar-width: thin; /* For Firefox */
+    scrollbar-color: #ccc #f9f9f9; /* Custom scrollbar colors */
+}
+
+/* Webkit Scrollbar Customization */
+.chat-history::-webkit-scrollbar {
+    width: 8px;
+}
+
+.chat-history::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 5px;
+}
+
+.chat-history::-webkit-scrollbar-thumb:hover {
+    background-color: #aaa;
+}
+
+.chat-history::-webkit-scrollbar-track {
+    background-color: #f9f9f9;
+}
+
+.chat-message {
+    border-radius: 5px;
+    margin: 5px;
+    padding: 20px;
+}
+
+.chat-message-box.left {
+    text-align: left;
+    float: left;
+    background-color: #e8f4f8; /* Light blue for received messages */
+}
+
+.chat-message-box.right {
+    text-align: right;
+    float: right;
+    background-color: #d4edda; /* Light green for sent messages */
+}
+
+.chat-message-box {
+    width: 40%;
+    border-radius: 5px;
+    margin: 5px;
+    padding: 20px;
+}
+
+/* Chat Option Button */
+.chat-option {
+    width: 93%;
+    text-align: left;
+    font-size: 18px;
+    padding: 15px;
+    margin: 2px 2px 2px 2px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    transition: background-color 0.3s, box-shadow 0.3s;
+    cursor: pointer;
+}
+
+.chat-option:hover {
+    background-color: #f0f0f0;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Chat Send Form */
+.chat-send-form {
+    display: flex;
+    flex-direction: row;
+    align-items: center; /* Vertically align items */
+    justify-content: space-between; /* Space between input and button */
+    height: 80px;
+    padding: 10px;
+    border-top: 1px solid #ddd;
+    background-color: #f1f1f1;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); /* Add a slight shadow for better separation */
+}
+
+/* Text Input */
+/* Styling for the textarea */
+.text-message textarea {
+    width: 100%; /* Make the textarea take up the entire width of the container */
+    height: 100%; /* Ensure it takes up the entire height of the container */
+    padding: 0px;
+    border-radius: 5px;
+    border: 1px solid #ddd; /* Border to match design */
+    resize: none; /* Disable resizing */
+    box-sizing: border-box; /* Ensure padding and border are included in the width/height */
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.text-message:focus {
+    border-color: #80bdff; /* Add a focus effect */
+    box-shadow: 0 0 5px rgba(128, 189, 255, 0.5);
+}
+
+/* Send Button styling */
+.text-message-send {
+    width: 20%;
+    padding: 10px;
+}
+
+.chat-send-button {
+    width: 100%; /* Make the button take up the full width of the container */
+    padding: 10px;
+    background-color: #7ed0ff; /* Light blue background */
+    color: #fff; /* White text */
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Button hover effect */
+.chat-send-button:hover {
+    background-color: #59baff; /* Darker blue when hovering */
+}
+
+/* Button active effect */
+.chat-send-button:active {
+    background-color: #3fa0e6; /* Even darker blue when clicked */
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2); /* Pressed effect */
+}
+
+/* Button focus effect */
+.chat-send-button:focus {
+    outline: none; /* Remove the default focus outline */
+    border: 2px solid #80bdff; /* Add a focus border */
+    box-shadow: 0 0 5px rgba(128, 189, 255, 0.5); /* Focus shadow */
+}
