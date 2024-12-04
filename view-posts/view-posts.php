@@ -1,6 +1,14 @@
 <?php
     include '../db-connect.php';
 
+    if (isset($_GET['message'])) {
+        echo "<p style='color: green; font-size: 20px;'>Message: " . htmlspecialchars($_GET['message']) . "</p>";
+    }
+
+    if (isset($_GET['error'])) {
+        echo "<p style='color: red; font-size: 20px;'>Error: " . htmlspecialchars($_GET['error']) . "</p>";
+    }
+
     // Fetch posts from the database
     try {
         $stmt = $pdo->prepare("
@@ -165,8 +173,8 @@
                     </p>
 
                     <?php if ($post['AuthorID'] === $memberID): ?>
-                        <form action="./delete-posts.php" method="POST">
-                            <button type="submit" class="delete-post">Delete Post</button>
+                        <form action="./delete-posts.php" method="GET">
+                            <button type="submit" class="delete-post" name="DeletePostID" value="<?= $post['PostID'] ?>">Delete Post</button>
                         </form>
                     <?php endif; ?>
                 </div>

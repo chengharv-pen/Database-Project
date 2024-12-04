@@ -1,5 +1,4 @@
 <?php
-    // Cookie parameter
     session_set_cookie_params([
         'lifetime' => 86400, // Duration of the session cookie
         'path' => '/', // Make the session available across the entire domain
@@ -46,25 +45,29 @@
             // Verify the password
             if (password_verify($passwordInput, $user['Password'])) {
 
-                // Check if account status is active
-                if ($user['Status'] === 'Active') {
-                    // Store user information in the session
-                    $_SESSION['MemberID'] = $user['MemberID'];
-                    $_SESSION['Username'] = $user['Username'];
-                    $_SESSION['Privilege'] = $user['Privilege'];
-
-                    // Update the LastLogin field
-                    $updateSql = "UPDATE Members SET LastLogin = NOW() WHERE MemberID = :memberID";
-                    $updateStmt = $pdo->prepare($updateSql);
-                    $updateStmt->bindParam(':memberID', $user['MemberID'], PDO::PARAM_INT);
-                    $updateStmt->execute();
-
-                    // Redirect to a dashboard or welcome page
-                    header("Location: ../index.php");
-                    exit();
-                } else {
-                    $error = "Your account is not active.";
+                // Check if account status is inactive and set it to active
+                if ($user['Status'] === 'Inactive') {
+                    // Update the user's status to Active upon successful login
+                    $updateStatusSql = "UPDATE Members SET Status = 'Active' WHERE MemberID = :memberID";
+                    $updateStatusStmt = $pdo->prepare($updateStatusSql);
+                    $updateStatusStmt->bindParam(':memberID', $user['MemberID'], PDO::PARAM_INT);
+                    $updateStatusStmt->execute();
                 }
+
+                // Store user information in the session
+                $_SESSION['MemberID'] = $user['MemberID'];
+                $_SESSION['Username'] = $user['Username'];
+                $_SESSION['Privilege'] = $user['Privilege'];
+
+                // Update the LastLogin field
+                $updateSql = "UPDATE Members SET LastLogin = NOW() WHERE MemberID = :memberID";
+                $updateStmt = $pdo->prepare($updateSql);
+                $updateStmt->bindParam(':memberID', $user['MemberID'], PDO::PARAM_INT);
+                $updateStmt->execute();
+
+                // Redirect to a dashboard or welcome page
+                header("Location: ../index.php");
+                exit();
             } else {
                 $error = "Invalid username or password.";
             }

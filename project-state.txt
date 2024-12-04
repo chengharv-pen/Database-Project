@@ -72,7 +72,7 @@ how should i simulate this...? ✅
 "CONS will allow only Proton email addresses!" ✅
 
 2 - Members Settings
-A Member should be Inactive if he is not logged in. ❌
+A Member should have Status Inactive if he is not logged in. ✅
 
 We should prompt for new Username/Password if NeedsUsernameChange/NeedsPasswordChange are TRUE ❌
 

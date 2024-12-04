@@ -71,6 +71,16 @@
         header("Location: ./display-friends.php?message=" . urlencode($message));
         exit;
     }
+
+    function getMemberStatus($memberID, $pdo) {
+        $sql = "SELECT Status FROM Members WHERE MemberID = :memberID LIMIT 1";
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindParam(':memberID', $memberID, PDO::PARAM_INT);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        return $result ? $result['Status'] : 'Unknown'; // Return the status or 'Unknown' if not found
+    }
 ?>
 
 
@@ -110,15 +120,16 @@
                     <?php if ($relationship['Status'] === 'Active' && 
                              ($relationship['ReceiverMemberID'] === $memberID || $relationship['SenderMemberID'] === $memberID)): ?>
 
+                        
                         <?php if ($relationship['SenderMemberID'] === $memberID): ?>
                             <td><?= htmlspecialchars($senderUsernames[$relationship['RelationshipID']] ?? 'Unknown') ?></td>
-                        <?php endif; ?>
-
-                        <?php if ($relationship['ReceiverMemberID'] === $memberID): ?>
-                            <td><?= htmlspecialchars($requesterUsernames[$relationship['RelationshipID']] ?? 'Unknown') ?></td>
+                            <td><?= htmlspecialchars(getMemberStatus($relationship['ReceiverMemberID'], $pdo)) ?></td>
                         <?php endif; ?>
                             
-                        <td>Status</td>
+                        <?php if ($relationship['ReceiverMemberID'] === $memberID): ?>
+                            <td><?= htmlspecialchars($requesterUsernames[$relationship['RelationshipID']] ?? 'Unknown') ?></td>
+                            <td><?= htmlspecialchars(getMemberStatus($relationship['SenderMemberID'], $pdo)) ?></td>
+                        <?php endif; ?>
                         
                         <td><?= htmlspecialchars($relationship['CreationDate']) ?></td>
 
