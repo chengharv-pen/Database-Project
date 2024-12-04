@@ -4,7 +4,9 @@
     // Fetch posts from the database
     try {
         $stmt = $pdo->prepare("
-            SELECT p.PostID, p.AuthorID, p.Content, p.PostDate, p.Likes, p.Dislikes, 
+            SELECT p.PostID, p.AuthorID, p.Content, p.PostDate, 
+                (SELECT COUNT(*) FROM PostLikes pl WHERE pl.PostID = p.PostID) AS Likes,
+                (SELECT COUNT(*) FROM PostDislikes pd WHERE pd.PostID = p.PostID) AS Dislikes, 
                 p.CommentsCount, p.VisibilitySettings, m.MediaType, m.MediaURL
             FROM Posts p
             LEFT JOIN PostMedia m ON p.PostID = m.PostID
@@ -12,109 +14,13 @@
         ");
         $stmt->execute();
         $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-        // Fetch comments for each post
-        $comments = [];
-        foreach ($posts as $post) {
-            $postID = $post['PostID'];
-            $commentStmt = $pdo->prepare("
-                SELECT c.CommentID, c.AuthorID, c.Content, c.CreationDate 
-                FROM Comments c WHERE c.PostID = :post_id ORDER BY c.CreationDate ASC
-            ");
-            $commentStmt->execute([':post_id' => $postID]);
-            $comments[$postID] = $commentStmt->fetchAll(PDO::FETCH_ASSOC);
-        }
     } catch (PDOException $e) {
         die("Error fetching posts or comments: " . $e->getMessage());
     }
 
-    // Initialize variables for filters
-    $filterFrom = $_GET['postFrom'] ?? null;
-    $filterTime = $_GET['postTime'] ?? 'Oldest';
-    $filterType = $_GET['postType'] ?? null;
-    $filterMetrics = $_GET['postMetrics'] ?? null;
-
-    if (!empty($_GET)) {
-        // Build the query only if filters are applied
-        $query = "
-            SELECT p.PostID, p.AuthorID, p.Content, p.PostDate, p.Likes, p.Dislikes, 
-                p.CommentsCount, p.VisibilitySettings, m.MediaType, m.MediaURL
-            FROM Posts p
-            LEFT JOIN PostMedia m ON p.PostID = m.PostID
-            LEFT JOIN BlockedMembers b ON p.AuthorID = b.BlockedID AND b.BlockerID = :currentUserID
-            WHERE b.BlockedID IS NULL
-        ";
-
-        // Add filters to the query
-        $params = [':currentUserID' => $memberID]; // Current user's ID
-
-        // Filter by "From" (e.g., posts by others or the user)
-        if ($filterFrom === 'You') {
-            $query .= " AND p.AuthorID = :memberID";
-            $params[':memberID'] = $memberID;
-        } elseif ($filterFrom === 'Others') {
-            $query .= " AND p.AuthorID <> :memberID";
-            $params[':memberID'] = $memberID;
-        }
-
-        // Filter by visibility type
-        if ($filterType) {
-            if ($filterType === 'Private') {
-                $query .= "
-                    AND p.VisibilitySettings = 'Private'
-                    AND (
-                        p.authorID = :currentUserID 
-                        OR EXISTS (
-                            SELECT 1 
-                            FROM Relationships r 
-                            WHERE 
-                                ((r.SenderMemberID = p.AuthorID AND r.ReceiverMemberID = :currentUserID)
-                                OR (r.SenderMemberID = :currentUserID AND r.ReceiverMemberID = p.AuthorID))
-                                AND r.Status = 'Active'
-                        )
-                    )
-                ";
-            } elseif ($filterType === 'Group') {
-                $query .= "
-                    AND p.VisibilitySettings = 'Group'
-                    AND EXISTS (
-                        SELECT 1 
-                        FROM PostGroups pg
-                        JOIN GroupMembers gm ON pg.GroupID = gm.GroupID
-                        WHERE pg.PostID = p.PostID AND gm.MemberID = :currentUserID
-                    )
-                ";
-            } else {
-                $query .= " AND p.VisibilitySettings = :visibility";
-                $params[':visibility'] = $filterType;
-            }
-        }
-
-        // Order by time
-        if ($filterTime === 'Newest') {
-            $query .= " ORDER BY p.PostDate DESC";
-        } else {
-            $query .= " ORDER BY p.PostDate ASC";
-        }
-
-        // Apply metrics filter
-        if ($filterMetrics === 'Most Likes') {
-            $query = str_replace("ORDER BY p.PostDate", "ORDER BY p.Likes DESC, p.PostDate", $query);
-        } elseif ($filterMetrics === 'Most Comments') {
-            $query = str_replace("ORDER BY p.PostDate", "ORDER BY p.CommentsCount DESC, p.PostDate", $query);
-        }
-
-        try {
-            $stmt = $pdo->prepare($query);
-            $stmt->execute($params);
-            $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            die("Error fetching posts: " . $e->getMessage());
-        }
-    }
-
-    include './comments.php';
+    include "filter-posts.php";
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -170,9 +76,7 @@
                         <?php
                             // Fetch Member's username based on the AuthorID of the Post
                             $stmt = $pdo->prepare("SELECT * FROM Members WHERE MemberID = :memberID");
-                            $stmt->execute([
-                                ':memberID' => $post['AuthorID'],
-                            ]);
+                            $stmt->execute([ ':memberID' => $post['AuthorID'] ]);
                             $memberPoster = $stmt->fetch(PDO::FETCH_ASSOC);
                         ?>
                         <?= htmlspecialchars($memberPoster['Username']) ?>
@@ -195,58 +99,70 @@
                         </video>
                     <?php endif; ?>
 
-                    <p><strong>Likes:</strong> <?= $post['Likes'] ?> | <strong>Dislikes:</strong> <?= $post['Dislikes'] ?></p>
-                    <p><button>Like</button> | <button>Dislike</button></p>
+                    <p>
+                        <strong>Likes:</strong> <?= $post['Likes'] ?> | <strong>Dislikes:</strong> <?= $post['Dislikes'] ?>
+                    </p>
+                    <div class="post-feedback-buttons">
+                        <!-- Show appropriate buttons -->
+                        <div class="like-button">
+                        <?php
+                            $userLiked = false; // Initialize the variable
 
-                    <p><strong>Comments:</strong> <?= $post['CommentsCount'] ?></p>
+                            $stmt = $pdo->prepare("SELECT * FROM PostLikes WHERE PostID = :postID AND UserID = :memberID");
+                            $stmt->execute([':postID' => $post['PostID'], ':memberID' => $memberID]);
 
-                    <!-- Comment Form -->
-                    <form action="" method="POST">
-                        <input type="hidden" name="post_id" value="<?= $post['PostID'] ?>">
-                        <label for="comment_content">Add a comment:</label><br>
-                        <textarea name="comment_content" id="comment_content" rows="3" required></textarea><br>
-                        <button type="submit" class="comment-button">Post Comment</button>
-                    </form>
-                    
+                            $existingLike = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                    <!-- Dropdown GET form to let the user display or not display Comments -->
-                    <form method="GET" action="">
-                        <label for="view">Select Comment View:</label>
-                        <select name="view" id="view" onchange="this.form.submit()">
-                            <option value="none" <?= isset($_GET['view']) && $_GET['view'] === 'none' ? 'selected' : '' ?>>None</option>
-                            <option value="all" <?= isset($_GET['view']) && $_GET['view'] === 'all' ? 'selected' : '' ?>>All</option>
-                        </select>
-                    </form>
+                            if ($existingLike !== false) {
+                                $userLiked = true;
+                            }
 
-                    <!-- Display Comments -->
-                    <div class="comments" style="display: <?= $view === 'all' ? 'block' : 'none' ?>;">
-                        <h3>Comments:</h3>
-                        <?php if (isset($comments[$post['PostID']])): ?>
-                            <?php foreach ($comments[$post['PostID']] as $comment): ?>
+                            if ($userLiked): ?>
+                                <!-- User has liked the post, so show "Remove Like" -->
+                                <form action="./like-posts.php" method="POST">
+                                    <input type="hidden" name="post_id" value="<?= $post['PostID'] ?>">
+                                    <button type="submit">Remove Like</button>
+                                </form>
+                            <?php else: ?>
+                                <!-- User hasn't liked the post, so show "Like" -->
+                                <form action="./like-posts.php" method="POST">
+                                    <input type="hidden" name="post_id" value="<?= $post['PostID'] ?>">
+                                    <button type="submit">Like</button>
+                                </form>
+                            <?php endif; ?>
+                        </div>
+                        
+                        <div class="dislike-button">
+                        <?php
+                            $userDisliked = false; // Initialize the variable
 
-                                <div class="comment">
+                            $stmt = $pdo->prepare("SELECT * FROM PostDislikes WHERE PostID = :postID AND UserID = :memberID");
+                            $stmt->execute([':postID' => $post['PostID'], ':memberID' => $memberID]);
 
-                                    <?php 
-                                        // Fetch the Author's name based on the AuthorID of the comment
-                                        $commentSQL = "SELECT Username FROM Members WHERE MemberID = :commentID";
-                                        $stmt = $pdo->prepare($commentSQL);
-                                        $stmt->bindParam(':commentID', $comment['AuthorID'], PDO::PARAM_INT);
-                                        $stmt->execute();
-                                        $commenter = $stmt->fetch(PDO::FETCH_ASSOC);
-                                    ?>
+                            $existingLike = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                                    <p><strong><?= htmlspecialchars($commenter['Username']) ?></strong> (<?= htmlspecialchars($comment['CreationDate']) ?>):</p>
+                            if ($existingLike !== false) {
+                                $userDisliked = true;
+                            }
 
-                                    <p><?= htmlspecialchars($comment['Content']) ?></p>
-
-                                </div>
-
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <p>No comments yet.</p>
-                        <?php endif; ?>
+                            if ($userDisliked): ?>
+                                <!-- User has disliked the post, so show "Remove Dislike" -->
+                                <form action="dislike-posts.php" method="POST">
+                                    <input type="hidden" name="post_id" value="<?= $post['PostID'] ?>">
+                                    <button type="submit">Remove Dislike</button>
+                                </form>
+                            <?php else: ?>
+                                <!-- User hasn't disliked the post, so show "Dislike" -->
+                                <form action="dislike-posts.php" method="POST">
+                                    <input type="hidden" name="post_id" value="<?= $post['PostID'] ?>">
+                                    <button type="submit">Dislike</button>
+                                </form>
+                            <?php endif; ?>
+                        </div>
                     </div>
-                    
+
+                    <p><strong>Comments:</strong> <?= $post['CommentsCount'] ?> | <a href="inspect-single-post.php?post_id=<?= $post['PostID'] ?>">View Comments</a></p>
+
                     <?php if ($post['AuthorID'] === $memberID): ?>
                         <form action="./delete-posts.php" method="POST">
                             <button type="submit" class="delete-post">Delete Post</button>

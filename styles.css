@@ -359,6 +359,46 @@ th {
     border: 1px solid #ccc; /* Optional: Add a border for better visibility */
 }
 
+.single-posts-container {
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;  /* Allows vertical scrolling */
+    scrollbar-width: none;  /* Hides scrollbar in Firefox */
+}
+
+.single-posts {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.single-post {
+    text-align: center;
+    width: 50%;
+    padding: 5px;
+    margin: 5px;
+    border: 1px solid black;
+}
+
+.single-comments {
+    text-align: center;
+    width: 50%;
+    padding: 5px;
+    margin: 5px;
+    border: 1px solid black;
+}
+
+.post-feedback-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center; /* Align buttons to the left */
+    align-items: center; /* Vertically center the buttons */
+}
+
+.like-button, .dislike-button {
+    margin: 10px;
+}
+
 /* 
 
     Below is responsive web design styling

@@ -42,12 +42,13 @@ Best posts ✅
 Latest posts ✅
 Oldest posts ✅
 Filtered by Groups ✅
-Filtered by Friends ✅
+Filtered by Friends (Private) ✅
 Filtered by Your Posts ✅
 Filtered by Other's Posts ✅
 Edit Own Comments ❌
 Delete Comments in your Posts ❌
 Delete Your Comments in other Posts ❌
+Liking/Disliking Posts ✅
 
 6 - Chat
 Implement something similar to Discord's chat here? Only text, no pictures/videos for simplicity. ✅ (NEEDS STYLING)
@@ -75,7 +76,7 @@ Inactive should act as a "DND" Mode (can't text to the Inactive) ❌
 
 We should prompt for new Username/Password if NeedsUsernameChange/NeedsPasswordChange are TRUE ❌
 
-Junior >>> can post (has control over the scope of it), can control the comments. ❌
+Junior >>> can post (has control over the scope of it), can control the comments. O
 Senior >>> can create groups and add people to groups ✅
 Administrator >>> can change privilege/status of other members ❌
 
