@@ -74,7 +74,7 @@ how should i simulate this...? ✅
 2 - Members Settings
 A Member should have Status Inactive if he is not logged in. ✅
 
-We should prompt for new Username/Password if NeedsUsernameChange/NeedsPasswordChange are TRUE ❌
+We should prompt for new Username/Password if NeedsUsernameChange/NeedsPasswordChange are TRUE ✅
 
 Junior >>> can post (has control over the scope of it), can control the comments. ✅
 Senior >>> can create groups and add people to groups ✅

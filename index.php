@@ -1,3 +1,40 @@
+<?php
+    session_start(); // Ensure session is started
+
+    // Check if user is logged in
+    if (isset($_SESSION['MemberID']) && $_SESSION['MemberID'] > 0) {
+        // Database connection
+        $host = "localhost"; // Change if using a different host
+        $dbname = "db-schema2";
+        $username = "root";
+        $password = "";
+
+        try {
+            $pdo = new PDO("mysql:host=$host; dbname=$dbname", $username, $password);
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+            // Query to get the member's status, username change, and password change flags
+            $sql = "SELECT NeedsUsernameChange, NeedsPasswordChange FROM Members WHERE MemberID = :memberID LIMIT 1";
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(':memberID', $_SESSION['MemberID'], PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $userFlags = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($userFlags) {
+                // Check if the user needs to change their username or password
+                if ($userFlags['NeedsUsernameChange'] || $userFlags['NeedsPasswordChange']) {
+                    // Redirect to a page where they can update their username/password
+                    header('Location: ./login/needs-userorpass-change.php');
+                    exit;
+                }
+            }
+        } catch (PDOException $e) {
+            die("Database connection failed: " . $e->getMessage());
+        }
+    }
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,9 +44,6 @@
     <link href="./styles.css?<?php echo time(); ?>" rel="stylesheet"/>
 </head>
 <body>
-    <?php
-        session_start(); // Ensure session is started
-    ?>
     <!-- Header -->
     <header>
         <div class="header-top">
