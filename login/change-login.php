@@ -4,7 +4,7 @@
 
     // Database connection
     $host = "localhost"; // Change if using a different host
-    $dbname = "db-schema";
+    $dbname = "db-schema2";
     $username = "root";
     $password = "";
 

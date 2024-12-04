@@ -1,34 +1,11 @@
 <?php
-    // Start session
-    session_start();
+    include '../db-connect.php';
 
-    // Check if user is authorized
-    if (!isset($_SESSION['MemberID']) || !isset($_SESSION['Privilege'])) {
-        die("Access denied. Please log in.");
-    }
-    
     // Check for messages in the query string
     $message = "";
     if (isset($_GET['message'])) {
         $message = htmlspecialchars($_GET['message']); // Sanitize input
     }
-
-    // Database connection
-    $host = "localhost";
-    $dbname = "db-schema";
-    $username = "root";
-    $password = "";
-
-    try {
-        $pdo = new PDO("mysql:host=$host; dbname=$dbname", $username, $password);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    } catch (PDOException $e) {
-        die("Database connection failed: " . $e->getMessage());
-    }
-
-    // Get MemberID and Privilege from session
-    $memberID = $_SESSION['MemberID'];
-    $privilege = $_SESSION['Privilege']; // Admin/Senior/Junior
 
     // Determine the view mode (default to 'all')
     $view = isset($_GET['view']) ? $_GET['view'] : 'all';
@@ -101,6 +78,7 @@
     </form>
 
     <?php if ($privilege !== 'Junior'): ?>
+        <br>
         <a href="./create-groups.php">Want to Create Groups?</a>
     <?php endif; ?>
 
@@ -112,8 +90,8 @@
             <h2>Your Joined Groups</h2>
         <?php endif; ?>
         
-        <div class="group">
         <?php foreach ($groups as $group): ?>
+        <div class="group">
             <div class="group-names">
                 <strong><?= htmlspecialchars($group['GroupName']) ?></strong>
                 (<?= htmlspecialchars($group['GroupType']) ?>, <?= htmlspecialchars($group['Region']) ?>)
@@ -129,10 +107,10 @@
                     
                     <!-- Join button for all groups -->
                     <div class="group-button">
-                    <form action="./join-groups.php" method="POST">
-                        <input type="hidden" name="GroupID" value="<?= $group['GroupID'] ?>">
-                        <button type="submit">Join</button>
-                    </form>
+                        <form action="./join-groups.php" method="POST">
+                            <input type="hidden" name="GroupID" value="<?= $group['GroupID'] ?>">
+                            <button type="submit">Join</button>
+                        </form>
                     </div>
 
                 <!-- Filter 2: JOINED Groups -->
@@ -140,42 +118,43 @@
 
                     <!-- Withdraw button for all JOINED groups -->
                     <div class="group-button">
-                    <form action="./withdraw-groups.php" method="POST">
-                        <input type="hidden" name="GroupID" value="<?= $group['GroupID'] ?>">
-                        <button type="submit">Withdraw</button>
-                    </form>
+                        <form action="./withdraw-groups.php" method="POST">
+                            <input type="hidden" name="GroupID" value="<?= $group['GroupID'] ?>">
+                            <button type="submit">Withdraw</button>
+                        </form>
                     </div>
 
                     <!-- View a Group's Members -->
                     <div class="group-button">
-                    <form action="./view-members-groups.php" method="POST">
-                        <input type="hidden" name="GroupID" value="<?= $group['GroupID'] ?>">
-                        <button type="submit">View Group Members</button>
-                    </form>
+                        <form action="./view-members-groups.php" method="POST">
+                            <input type="hidden" name="GroupID" value="<?= $group['GroupID'] ?>">
+                            <button type="submit">View Group Members</button>
+                        </form>
                     </div>
                     
                     <!-- This should only be accessible to Senior/Admin Member AND Group Admin -->
                     <?php if ($group['Role'] === 'Admin' && $privilege !== 'Junior'): ?>
                         <!-- Edit button -->
                         <div class="group-button">
-                        <form action="./edit-groups.php" method="GET">
-                            <input type="hidden" name="GroupID" value="<?= $group['GroupID'] ?>">
-                            <button type="submit">Edit</button>
-                        </form>
+                            <form action="./edit-groups.php" method="GET">
+                                <input type="hidden" name="GroupID" value="<?= $group['GroupID'] ?>">
+                                <button type="submit">Edit</button>
+                            </form>
                         </div>
 
                         <!-- Delete button -->
                         <div class="group-button">
-                        <form action="./delete-groups.php" method="GET">
-                            <input type="hidden" name="GroupID" value="<?= $group['GroupID'] ?>">
-                            <button type="submit">Delete</button>
-                        </form>
+                            <form action="./delete-groups.php" method="GET">
+                                <input type="hidden" name="GroupID" value="<?= $group['GroupID'] ?>">
+                                <button type="submit">Delete</button>
+                            </form>
                         </div>
+                    
                     <?php endif; ?>
                 <?php endif; ?>
             </div>
-        <?php endforeach; ?>
         </div>
+        <?php endforeach; ?>
     </div>
 </body>
 </html>

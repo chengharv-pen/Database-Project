@@ -1,27 +1,5 @@
 <?php
-    // Start session
-    session_start();
-
-    $memberID = $_SESSION['MemberID'];
-    $privilege = $_SESSION['Privilege'];
-
-    // Check if user is authorized
-    if (!isset($_SESSION['MemberID']) || !isset($_SESSION['Privilege'])) {
-        die("Access denied. Please log in.");
-    }
-
-    // Database connection
-    $host = "localhost"; // Change if using a different host
-    $dbname = "db-schema";
-    $username = "root";
-    $password = "";
-
-    try {
-        $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    } catch (PDOException $e) {
-        die("Database connection failed: " . $e->getMessage());
-    }
+    include '../db-connect.php';
 
     try {
         // Fetch posts from the database (TODO: ADD A TOGGLE TO SORT BY DESC)
@@ -102,8 +80,8 @@
         <form action="" method="GET">
             Time:
             <select> 
-                <option name="postTime" value="Newest">Newest</option>
                 <option name="postTime" value="Oldest">Oldest</option>
+                <option name="postTime" value="Newest">Newest</option>
             </select>
         </form>
 

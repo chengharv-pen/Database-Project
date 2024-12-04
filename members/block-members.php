@@ -1,19 +1,5 @@
 <?php
-    // Start session
-    session_start();
-
-    // Database connection
-    $host = "localhost"; // Change if using a different host
-    $dbname = "db-schema";
-    $username = "root";
-    $password = "";
-
-    try {
-        $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    } catch (PDOException $e) {
-        die("Database connection failed: " . $e->getMessage());
-    }   
+    include '../db-connect.php'; 
 
     // Placeholder for logged-in user's ID
     $loggedInUserID = $_SESSION['MemberID']; // Assuming session holds logged-in user's MemberID

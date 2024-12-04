@@ -1,30 +1,8 @@
 <?php
-    // Start session
-    session_start();
-
-    $memberID = $_SESSION['MemberID'];
-    $privilege = $_SESSION['Privilege'];
+    include '../db-connect.php';
 
     // A variable that gives feedback for accept/reject join requests
     $feedback = "";
-
-    // Check if user is authorized
-    if (!isset($_SESSION['MemberID']) || !isset($_SESSION['Privilege'])) {
-        die("Access denied. Please log in.");
-    }
-
-    // Database connection
-    $host = "localhost";
-    $dbname = "db-schema";
-    $username = "root";
-    $password = "";
-
-    try {
-        $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    } catch (PDOException $e) {
-        die("Database connection failed: " . $e->getMessage());
-    }
 
     // Handle GET request to fetch group details
     if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['GroupID'])) {

@@ -1,24 +1,5 @@
 <?php
-    // Start session
-    session_start();
-
-    // Check if user is authorized
-    if (!isset($_SESSION['MemberID']) || !isset($_SESSION['Privilege'])) {
-        die("Access denied. Please log in.");
-    }
-
-    // Database connection
-    $host = "localhost";
-    $dbname = "db-schema";
-    $username = "root";
-    $password = "";
-
-    try {
-        $pdo = new PDO("mysql:host=$host; dbname=$dbname", $username, $password);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    } catch (PDOException $e) {
-        die("Database connection failed: " . $e->getMessage());
-    }
+    include '../db-connect.php';
 
     // Check if GroupID is provided
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['GroupID'])) {

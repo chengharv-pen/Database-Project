@@ -1,27 +1,5 @@
 <?php
-    // Start session
-    session_start();
-
-    $memberID = $_SESSION['MemberID'];
-    $privilege = $_SESSION['Privilege'];
-
-    // Check if user is authorized
-    if (!isset($_SESSION['MemberID']) || !isset($_SESSION['Privilege'])) {
-        die("Access denied. Please log in.");
-    }
-
-    // Database connection
-    $host = "localhost"; // Change if using a different host
-    $dbname = "db-schema";
-    $username = "root";
-    $password = "";
-
-    try {
-        $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    } catch (PDOException $e) {
-        die("Database connection failed: " . $e->getMessage());
-    }
+    include '../db-connect.php';
 
     // Set the directory for uploaded files
     $uploadDir = '../uploads/';
@@ -107,7 +85,7 @@
     <form action="" method="POST" enctype="multipart/form-data">
         <label for="content">Post Content:</label><br>
         <textarea name="content" id="content" rows="5" required></textarea><br><br><br>
-        
+
         <label for="visibility">Visibility:</label>
         <select name="visibility" id="visibility">
             <option value="Public">Public</option>

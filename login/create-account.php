@@ -4,7 +4,7 @@
 
     // Database connection
     $host = "localhost"; // Change if using a different host
-    $dbname = "db-schema";
+    $dbname = "db-schema2";
     $username = "root";
     $password = "";
 
@@ -30,7 +30,7 @@
         $accountTypeInput = $_POST['accountType'] ?? '';
 
         // Validate email to ensure it's a ProtonMail email address
-        if (substr($emailInput, -12) !== '@protonmail.com') {
+        if (substr($emailInput, -15) !== '@protonmail.com') {
             $feedback = "Email must be a ProtonMail address (e.g., user@protonmail.com).";
         } else {
             // Hash the password securely

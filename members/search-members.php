@@ -1,24 +1,5 @@
 <?php
-    // Start session
-    session_start();
-
-    // Check if user is authorized
-    if (!isset($_SESSION['MemberID']) || !isset($_SESSION['Privilege'])) {
-        die("Access denied. Please log in.");
-    }
-
-    // Database connection
-    $host = "localhost"; // Change if using a different host
-    $dbname = "db-schema";
-    $username = "root";
-    $password = "";
-
-    try {
-        $pdo = new PDO("mysql:host=$host;dbname=$dbname", $username, $password);
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    } catch (PDOException $e) {
-        die("Database connection failed: " . $e->getMessage());
-    }   
+    include '../db-connect.php';
 
     // Placeholder for logged-in user's ID
     $loggedInUserID = $_SESSION['MemberID']; // Assuming session holds logged-in user's MemberID
@@ -122,7 +103,7 @@
             $blockingStatus = $blockStmt->fetchColumn();
 
             // Check if the user is already a friend
-            $checkFriendSql = "SELECT * FROM Relationships 
+            $checkFriendSql = "SELECT Status FROM Relationships 
                                 WHERE (SenderMemberID = :sessionMemberID AND ReceiverMemberID = :targetMemberID)
                                     OR (SenderMemberID = :targetMemberID AND ReceiverMemberID = :sessionMemberID)";
 
@@ -184,7 +165,7 @@
         <form action="../friends/request-friends.php" method="POST">
             <input type="hidden" name="friend_member_id" value="<?php echo htmlspecialchars($member['MemberID']); ?>">
 
-            <?php if ($friendStatus['Status'] === 'Active'): ?>
+            <?php if ($friendStatus === 'Active'): ?>
                 <!-- If added as Friend, then show this -->
                 <button type="submit" name="remove_friend" value="remove_friend" class="remove-friend-button"> Remove Friend </button> 
             <?php else: ?>
