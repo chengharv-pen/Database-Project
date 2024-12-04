@@ -3,6 +3,7 @@
 
     $userId = $memberID;
     $eventId = $_GET['event_id'];  // Get the event ID from the URL
+    $groupId = $_GET['group_id'];  // Get the group ID from the URL
 
     // Fetch event details
     $stmt = $pdo->prepare("SELECT * FROM Events WHERE EventID = ?");
@@ -33,9 +34,17 @@
         $stmt->execute([$eventId, $userId, $optionId]);
 
         // Redirect back to the vote events page
-        header("Location: ./vote-events.php?event_id=" . $eventId);
+        header("Location: ./vote-events.php?event_id=" . $eventId . "&group_id=" . $groupId);
         exit;
     }
+
+    // Check if the logged-in user is an admin of the group
+    $stmt = $pdo->prepare("
+        SELECT * FROM GroupMembers 
+        WHERE GroupID = ? AND MemberID = ? AND Role = 'Admin'"
+    );
+    $stmt->execute([$groupId, $userId]);
+    $isAdmin = $stmt->rowCount() > 0;
 
 ?>
 
@@ -52,28 +61,46 @@
     <p>Status: <?php echo htmlspecialchars($event['EventStatus']); ?></p>
 
     <h3>Vote on Date/Time/Place:</h3>
-    <form action="event_details.php?event_id=<?php echo $eventId; ?>" method="POST">
-        <?php foreach ($options as $option): ?>
-            <div>
-                <input type="radio" name="option_id" value="<?php echo $option['OptionID']; ?>" id="option-<?php echo $option['OptionID']; ?>" <?php echo $alreadyVoted ? 'disabled' : ''; ?>>
-                <label for="option-<?php echo $option['OptionID']; ?>">
-                    <?php echo htmlspecialchars($option['OptionValue']); ?>
-                    <?php echo $option['IsSuggestedByMember'] ? "(Suggested by a member)" : "(Default option)"; ?>
-                </label>
-            </div>
-        <?php endforeach; ?>
-
-        <?php if ($alreadyVoted): ?>
-            <p>You have already voted!</p>
+    <form action="vote-events.php?event_id=<?php echo $eventId; ?>" method="POST">
+        <?php if (empty($options)): ?>
+            <p>No options available to vote on.</p>
         <?php else: ?>
-            <button type="submit">Vote</button>
+            <?php foreach ($options as $option): ?>
+                <div class="event-option">
+                    <input type="radio" name="option_id" value="<?php echo $option['OptionID']; ?>" id="option-<?php echo $option['OptionID']; ?>" <?php echo $alreadyVoted ? 'disabled' : ''; ?>>
+                    <label for="option-<?php echo $option['OptionID']; ?>">
+                        <?php echo htmlspecialchars($option['OptionDate']); ?> | 
+                        <?php echo htmlspecialchars($option['OptionTime']); ?> | 
+                        <?php echo htmlspecialchars($option['OptionPlace']); ?>
+                        <?php echo $option['IsSuggestedByMember'] ? "(Suggested by a member)" : "(Default option)"; ?>
+                    </label>
+                </div>
+            <?php endforeach; ?>
+
+            <?php if ($alreadyVoted): ?>
+                <p>You have already voted!</p>
+            <?php else: ?>
+                <button type="submit">Vote</button>
+            <?php endif; ?>
         <?php endif; ?>
     </form>
+
+    <?php if ($isAdmin): ?>
+        <br>
+        <a href="add-voting-options-events.php?event_id=<?php echo $eventId; ?>&group_id=<?php echo $groupId; ?>">Add Voting Options</a>
+    <?php endif; ?>
 
     <?php if ($event['EventStatus'] == 'Scheduled'): ?>
         <h3>Voting Results:</h3>
         <?php
-        $stmt = $pdo->prepare("SELECT eo.OptionValue, COUNT(ev.VoteID) AS VoteCount FROM EventVotingOptions eo LEFT JOIN EventVotes ev ON eo.OptionID = ev.OptionID WHERE eo.EventID = ? GROUP BY eo.OptionID ORDER BY VoteCount DESC");
+        $stmt = $pdo->prepare("
+            SELECT eo.OptionValue, COUNT(ev.VoteID) AS VoteCount 
+            FROM EventVotingOptions eo 
+            LEFT JOIN EventVotes ev ON eo.OptionID = ev.OptionID 
+            WHERE eo.EventID = ? GROUP BY eo.OptionID 
+            ORDER BY VoteCount DESC"
+        );
+
         $stmt->execute([$eventId]);
         $voteResults = $stmt->fetchAll();
 

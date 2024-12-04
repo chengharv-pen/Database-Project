@@ -1,23 +1,34 @@
 <?php
     include '../db-connect.php';
 
-    // Only a Group Admin should be able to access...
+    $eventId = $_GET['event_id'];  // Get the event ID from the URL
+    $groupId = $_GET['group_id'];  // Get the group ID from the URL
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        $eventId = $_POST['event_id'];
-        $optionType = $_POST['option_type'];
-        $optionValue = $_POST['option_value'];
+        $optionDate = $_POST['option_date'];
+        $optionTime = $_POST['option_time'];
+        $optionPlace = $_POST['option_place'];
         $isSuggestedByMember = isset($_POST['suggested_by_member']) ? 1 : 0;
 
-        // Insert the voting option
-        $stmt = $pdo->prepare("INSERT INTO EventVotingOptions (EventID, OptionType, OptionValue, IsSuggestedByMember) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$eventId, $optionType, $optionValue, $isSuggestedByMember]);
+        // Validate the date format (YYYY-MM-DD)
+        if (strtotime($optionDate) === false) {
+            echo "Invalid date format.";
+            exit;
+        }
+
+        // Insert the voting option with date, time, and place
+        $stmt = $pdo->prepare("
+            INSERT INTO EventVotingOptions (EventID, OptionDate, OptionTime, OptionPlace, IsSuggestedByMember) 
+            VALUES (?, ?, ?, ?, ?)"
+        );
+        $stmt->execute([$eventId, $optionDate, $optionTime, $optionPlace, $isSuggestedByMember]);
 
         // Redirect to the voting page
-        header("Location: event_voting.php?event_id=" . $eventId);
+        header("Location: vote-events.php?event_id=" . $eventId . "&group_id=" . $groupId);  // Fixed URL issue
         exit;
     }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -28,22 +39,18 @@
 </head>
 <body>
     <h1>Add Voting Option</h1>
-    <form action="./add-voting-options-events.php" method="POST">
-        <label for="event_id">Event ID:</label>
-        <input type="text" name="event_id" required><br>
+    <form action="add-voting-options-events.php?event_id=<?php echo $eventId; ?>&group_id=<?php echo $groupId; ?>" method="POST">
+        <label for="option_date">Date:</label>
+        <input type="date" name="option_date" required><br><br>
 
-        <label for="option_type">Option Type:</label>
-        <select name="option_type" required>
-            <option value="Date">Date</option>
-            <option value="Time">Time</option>
-            <option value="Place">Place</option>
-        </select><br>
+        <label for="option_time">Time:</label>
+        <input type="time" name="option_time" required><br><br>
 
-        <label for="option_value">Option Value:</label>
-        <input type="text" name="option_value" required><br>
+        <label for="option_place">Place:</label>
+        <input type="text" name="option_place" required><br><br>
 
         <label for="suggested_by_member">Is this suggested by a member?</label>
-        <input type="checkbox" name="suggested_by_member"><br>
+        <input type="checkbox" name="suggested_by_member"><br><br>
 
         <button type="submit">Add Voting Option</button>
     </form>

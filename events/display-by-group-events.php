@@ -5,9 +5,20 @@
     $groupId = $_GET['group_id'];  // Get the group ID from the URL
 
     // Fetch all events for the selected group
-    $stmt = $pdo->prepare("SELECT * FROM Events WHERE GroupID = ?");
+    $stmt = $pdo->prepare("
+        SELECT * FROM Events 
+        WHERE GroupID = ?"
+    );
     $stmt->execute([$groupId]);
     $events = $stmt->fetchAll();
+
+    // Check if the logged-in user is an admin of the group
+    $stmt = $pdo->prepare("
+        SELECT * FROM GroupMembers 
+        WHERE GroupID = ? AND MemberID = ? AND Role = 'Admin'"
+    );
+    $stmt->execute([$groupId, $userId]);
+    $isAdmin = $stmt->rowCount() > 0;
 ?>
 
 <!DOCTYPE html>
@@ -24,20 +35,24 @@
     <ul>
         <?php foreach ($events as $event): ?>
             <li>
-                <a href="vote-events.php?event_id=<?php echo $event['EventID']; ?>">
+                <a href="vote-events.php?event_id=<?php echo $event['EventID']; ?>&group_id=<?php echo $groupId; ?>">
                     <?php echo htmlspecialchars($event['EventTitle']); ?> - Status: <?php echo htmlspecialchars($event['EventStatus']); ?>
                 </a>
             </li>
         <?php endforeach; ?>
     </ul>
     
-    <!-- IF MEMBER IS ADMIN OF THIS GROUP, 
-         THEN SHOW HIM A LINK TO create-events.php AND finalize-events.php
-    -->
-    <?php if ($memberID): ?>
-
+    <!-- If the member is an admin of the group, show additional links -->
+    <?php if ($isAdmin): ?>
+        <h3>Admin Options</h3>
+        <ul>
+            <li><a href="create-events.php?group_id=<?php echo $groupId; ?>">Create New Event</a></li>
+            <li><a href="finalize-events.php?group_id=<?php echo $groupId; ?>">Finalize Event</a></li>
+        </ul>
     <?php endif; ?>
 
+    <!-- Link to choose another group -->
+    <br>
     <a href="./display-events.php">Choose another Group?</a>
 </body>
 </html>

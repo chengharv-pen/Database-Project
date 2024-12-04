@@ -1,38 +1,97 @@
 <?php
     include '../db-connect.php';
 
-    // Only a Group Admin should be able to access...
-
     $userId = $memberID;
-    $eventId = $_GET['event_id'];  // Get the event ID from the URL
 
-    // Fetch event details
-    $stmt = $pdo->prepare("SELECT * FROM Events WHERE EventID = ?");
-    $stmt->execute([$eventId]);
-    $event = $stmt->fetch();
+    // Safely handle group_id from GET or POST
+    $groupId = null;
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $groupId = isset($_POST['group_id']) ? $_POST['group_id'] : null;
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        $groupId = isset($_GET['group_id']) ? $_GET['group_id'] : null;
+    }
 
-    // Check if the user is the event creator
-    if ($event['EventCreatorID'] != $userId) {
-        echo "You are not authorized to finalize this event.";
+    if (!$groupId) {
+        echo "Error: group_id is missing.";
+        echo "Debug: POST data: " . json_encode($_POST);
+        echo "Debug: GET data: " . json_encode($_GET);
         exit;
     }
 
-    // Get the most voted option
-    $stmt = $pdo->prepare("SELECT eo.OptionValue FROM EventVotingOptions eo LEFT JOIN EventVotes ev ON eo.OptionID = ev.OptionID WHERE eo.EventID = ? GROUP BY eo.OptionID ORDER BY COUNT(ev.VoteID) DESC LIMIT 1");
-    $stmt->execute([$eventId]);
-    $mostVotedOption = $stmt->fetch();
+    // Check if the logged-in user is an admin of the group
+    $stmt = $pdo->prepare("
+        SELECT * FROM GroupMembers 
+        WHERE GroupID = ? AND MemberID = ? AND Role = 'Admin'");
+    $stmt->execute([$groupId, $userId]);
+    $isAdmin = $stmt->rowCount() > 0;
 
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        // Finalize the event based on the most voted option
-        $finalOption = $_POST['final_option'];
+    // Fetch events only if the user is an admin
+    if ($isAdmin) {
+        // Fetch events for the selected group
+        $stmt = $pdo->prepare("SELECT * FROM Events WHERE GroupID = ?");
+        $stmt->execute([$groupId]);
+        $events = $stmt->fetchAll();
 
-        // Update the event with the selected final option
-        $stmt = $pdo->prepare("UPDATE Events SET EventDate = ?, EventStatus = 'Scheduled' WHERE EventID = ?");
-        $stmt->execute([$finalOption, $eventId]);
+        if ($_SERVER['REQUEST_METHOD'] == 'GET'&& isset($_GET['event_id'])) {
+            // Fetch event details based on the selected event
+            $eventId = $_GET['event_id'];
+            $stmt = $pdo->prepare("SELECT * FROM Events WHERE EventID = ?");
+            $stmt->execute([$eventId]);
+            $event = $stmt->fetch();
 
-        echo "Event has been finalized!";
+            // Check if the user is the event creator
+            if ($event['EventCreatorID'] != $userId) {
+                echo "You are not authorized to finalize this event.";
+                exit;
+            }
+
+            $stmt = $pdo->prepare("
+                SELECT eo.OptionDate, eo.OptionTime, eo.OptionPlace, COUNT(CASE WHEN ev.VoteID IS NOT NULL THEN 1 END) AS VoteCount
+                FROM EventVotingOptions eo
+                LEFT JOIN EventVotes ev ON eo.OptionID = ev.OptionID
+                WHERE eo.EventID = ?
+                GROUP BY eo.OptionID
+                ORDER BY VoteCount DESC
+                LIMIT 1
+            ");
+            $stmt->execute([$eventId]);
+            $mostVotedOption = $stmt->fetch();
+            print_r($mostVotedOption);
+            
+            // Check if no vote has been cast yet
+            if (!$mostVotedOption || $mostVotedOption['VoteCount'] == 0) {
+                echo "No votes have been cast for this event yet.";
+                exit;
+            }
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+
+            $eventId = $_POST['event_id'] ?? null;
+
+            if (!$eventId) {
+                echo "Error: event_id is missing.";
+                exit;
+            }
+
+            $finalDate = $_POST['final_date'];
+            $finalTime = $_POST['final_time'];
+            $finalPlace = $_POST['final_place'];
+
+            $stmt = $pdo->prepare("
+                UPDATE Events 
+                SET EventDate = ?, EventStatus = 'Scheduled' 
+                WHERE EventID = ?");
+            $stmt->execute([$finalDate, $eventId]);
+
+            echo "Event has been finalized!";
+            exit;
+        }
+    } else {
+        echo "You must be an admin to finalize events.";
         exit;
     }
+
 ?>
 
 <!DOCTYPE html>
@@ -41,17 +100,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../styles.css?<?php echo time(); ?>" rel="stylesheet"/>
+    <title>Finalize Event</title>
 </head>
 <body>
     <h1>Finalize Event</h1>
 
-    <h2>Most Voted Option</h2>
-    <p><?php echo htmlspecialchars($mostVotedOption['OptionValue']); ?></p>
+    <!-- Only a Group Admin should be able to access -->
+    <?php if ($isAdmin): ?>
+        <!-- Form to select an Event in the Group to finalize -->
+        <form id="eventForm" action="./finalize-events.php" method="GET">
+            <input type="hidden" name="group_id" value="<?php echo $groupId; ?>"> <!-- Hidden group_id field -->
+            <label for="event_id">Select Event to Finalize:</label>
+            <select name="event_id" id="event_id" onchange="this.form.submit()">
+                <option value="">--Select an Event--</option>
+                <?php foreach ($events as $event): ?>
+                    <option value="<?php echo $event['EventID']; ?>">
+                        <?php echo htmlspecialchars($event['EventTitle']); ?> - Status: <?php echo htmlspecialchars($event['EventStatus']); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </form>
 
-    <form action="finalize_event.php?event_id=<?php echo $eventId; ?>" method="POST">
-        <label for="final_option">Select Final Option:</label>
-        <input type="text" name="final_option" value="<?php echo htmlspecialchars($mostVotedOption['OptionValue']); ?>" readonly>
-        <button type="submit">Finalize Event</button>
-    </form>
+        <?php if (isset($mostVotedOption)): ?>
+            <h2>Most Voted Option</h2>
+            <form id="finalizeForm" action="./finalize-events.php" method="POST">
+                <input type="hidden" name="group_id" value="<?php echo $groupId; ?>"> <!-- Hidden group_id field -->
+                <input type="hidden" name="event_id" value="<?php echo $eventId; ?>"> <!-- Hidden event_id field -->
+                <fieldset>
+                    <legend>Finalize Event</legend>
+                    <label for="final_date">Final Date:</label>
+                    <input type="text" id="final_date" name="final_date" value="<?php echo htmlspecialchars($mostVotedOption['OptionDate']); ?>" readonly>
+
+                    <label for="final_time">Final Time:</label>
+                    <input type="text" id="final_time" name="final_time" value="<?php echo htmlspecialchars($mostVotedOption['OptionTime']); ?>" readonly>
+
+                    <label for="final_place">Final Place:</label>
+                    <input type="text" id="final_place" name="final_place" value="<?php echo htmlspecialchars($mostVotedOption['OptionPlace']); ?>" readonly>
+
+                    <button type="submit" onclick="return confirm('Are you sure you want to finalize this event?')">Finalize Event</button>
+                </fieldset>
+            </form>
+        <?php endif; ?>
+    <?php else: ?>
+        <p>You are not authorized to view this page.</p>
+    <?php endif; ?>
 </body>
 </html>

@@ -1,7 +1,8 @@
 <?php
     include '../db-connect.php';
 
-    // Only a Group Admin should be able to access...
+    $userId = $memberID;
+    $groupId = $_GET['group_id'];  // Get the group ID from the URL
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $groupId = $_POST['group_id'];
@@ -12,13 +13,24 @@
         $eventCreatorId = $memberID;  // Event creator is the logged-in user
 
         // Insert event into database
-        $stmt = $pdo->prepare("INSERT INTO Events (GroupID, EventTitle, EventDescription, EventCreatorID, EventDate) VALUES (?, ?, ?, ?, ?)");
+        $stmt = $pdo->prepare("
+            INSERT INTO Events (GroupID, EventTitle, EventDescription, EventCreatorID, EventDate) 
+            VALUES (?, ?, ?, ?, ?)"
+        );
         $stmt->execute([$groupId, $eventTitle, $eventDescription, $eventCreatorId, $eventDate]);
 
         // Redirect to event voting page
-        header("Location: event_voting.php?event_id=" . $pdo->lastInsertId());
+        header("Location: ./display-events.php");
         exit;
     }
+
+    // Check if the logged-in user is an admin of the group
+    $stmt = $pdo->prepare("
+        SELECT * FROM GroupMembers 
+        WHERE GroupID = ? AND MemberID = ? AND Role = 'Admin'"
+    );
+    $stmt->execute([$groupId, $userId]);
+    $isAdmin = $stmt->rowCount() > 0;
 ?>
 
 <!DOCTYPE html>
@@ -30,28 +42,45 @@
 </head>
 <body>
     <h1>Create New Event</h1>
-    <form action="create-events.php" method="POST">
-        <label for="group_id">Group:</label>
-        <select name="group_id" id="group_id" required>
-            <!-- Fetch and display groups -->
-            <?php
-            $stmt = $pdo->query("SELECT GroupID, GroupName FROM Groups WHERE OwnerID = ?");
-            while ($row = $stmt->fetch()) {
-                echo "<option value='{$row['GroupID']}'>{$row['GroupName']}</option>";
-            }
-            ?>
-        </select><br>
 
-        <label for="event_title">Event Title:</label>
-        <input type="text" name="event_title" required><br>
+    <?php if ($isAdmin): ?>
+        <form action="create-events.php" method="POST">
+            <label for="group_id">Group:</label>
+            <select name="group_id" id="group_id" required>
+                <!-- Fetch and display groups -->
+                <?php
+                    try {
+                        $stmt = $pdo->prepare("
+                            SELECT GroupID, GroupName 
+                            FROM Groups 
+                            WHERE OwnerID = ? AND GroupID = ?
+                        ");
+                        $stmt->execute([$userId, $groupId]);
+                        
+                        // Check if groups are found
+                        if ($stmt->rowCount() > 0) {
+                            $row = $stmt->fetch();
+                            echo "<option value='" . htmlspecialchars($row['GroupID']) . "'>" . htmlspecialchars($row['GroupName']) . "</option>";
+                        } else {
+                            echo "<option disabled>No groups found</option>";
+                        }
+                    } catch (PDOException $e) {
+                        echo "<option disabled>Error fetching groups: " . htmlspecialchars($e->getMessage()) . "</option>";
+                    }
+                ?>
+            </select><br><br>
 
-        <label for="event_description">Event Description:</label>
-        <textarea name="event_description" required></textarea><br>
+            <label for="event_title">Event Title:</label>
+            <input type="text" name="event_title" required><br>
 
-        <label for="event_date">Event Date:</label>
-        <input type="datetime-local" name="event_date" required><br>
+            <label for="event_description">Event Description:</label><br>
+            <textarea name="event_description" required></textarea><br><br>
 
-        <button type="submit">Create Event</button>
-    </form>
+            <label for="event_date">Event Date:</label>
+            <input type="datetime-local" name="event_date" required><br><br>
+
+            <button type="submit">Create Event</button>
+        </form>
+    <?php endif; ?>
 </body>
 </html>

@@ -2,7 +2,13 @@
     include '../db-connect.php';
 
     // Fetch all groups that the user is a member of
-    $stmt = $pdo->prepare("SELECT g.GroupID, g.GroupName FROM GroupMembers gm JOIN Groups g ON gm.GroupID = g.GroupID WHERE gm.MemberID = ?");
+    $stmt = $pdo->prepare("
+        SELECT g.GroupID, g.GroupName 
+        FROM GroupMembers gm 
+        JOIN Groups g ON gm.GroupID = g.GroupID 
+        WHERE gm.MemberID = ?"
+    );
+
     $stmt->execute([$memberID]);
     $groups = $stmt->fetchAll();
 ?>
@@ -23,7 +29,7 @@
             <li><a href="display-by-group-events.php?group_id=<?php echo $group['GroupID']; ?>"><?php echo htmlspecialchars($group['GroupName']); ?></a></li>
         <?php endforeach; ?>
     </ul>
-
+    
     <!-- there should be a box that just displays all events here, regardless of group specificity -->
 </body>
 </html>
