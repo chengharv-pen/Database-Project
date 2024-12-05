@@ -17,6 +17,19 @@
         $giftExchanges = $giftExchanges->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    // Fetch all members for the selected gift exchange (if any)
+    if ($giftExchangeIDSelected) {
+        $stmt = $pdo->prepare("
+            SELECT m.MemberID, m.Username 
+            FROM Members m
+            INNER JOIN GroupMembers gm ON m.MemberID = gm.MemberID
+            WHERE gm.GroupID = :groupID
+        ");
+        $stmt->bindParam(':groupID', $groupID, PDO::PARAM_INT);
+        $stmt->execute();
+        $members = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     // Handle form submission to add participants
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && $giftExchangeIDSelected) {
         $participants = $_POST['participants'] ?? [];
@@ -38,17 +51,9 @@
                     ':gift_preference' => $preference,  // Use the value from gift_preferences array
                 ]);
             }
-            echo "Participants added successfully!";
         } catch (PDOException $e) {
             die("Error: " . $e->getMessage());
         }
-    }
-
-    // Fetch all members for the selected gift exchange (if any)
-    if ($giftExchangeIDSelected) {
-        $stmt = $pdo->prepare("SELECT MemberID, Username FROM Members");
-        $stmt->execute();
-        $members = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 ?>
 
@@ -58,50 +63,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../styles.css?<?php echo time(); ?>" rel="stylesheet">
+    <link href="../events/events.css?<?php echo time(); ?>" rel="stylesheet">
 </head>
 <body>
-    <form method="POST" action="">
-        <!-- Group Selection -->
-        <label for="group_id">Select Group:</label>
-        <select name="group_id" id="group_id" onchange="this.form.submit()">
-            <option value="">--Select a Group--</option>
-            <?php
-            foreach ($groups as $group) {
-                echo "<option value='{$group['GroupID']}'" . ($group['GroupID'] == $groupID ? ' selected' : '') . ">{$group['GroupName']}</option>";
-            }
-            ?>
-        </select><br><br>
+    <div class="vertical-event-wrapper">
+        <form method="POST" action="">
+            <!-- Group Selection -->
+            <div class="event-groups">
+                <label for="group_id">Select Group:</label>
+                <select name="group_id" id="group_id" onchange="this.form.submit()">
+                    <option value="">--Select a Group--</option>
+                    <?php
+                    foreach ($groups as $group) {
+                        echo "<option value='{$group['GroupID']}'" . ($group['GroupID'] == $groupID ? ' selected' : '') . ">{$group['GroupName']}</option>";
+                    }
+                    ?>
+                </select><br><br>
+            </div>
 
-        <!-- Gift Exchange Selection -->
-        <?php if ($groupID): ?>
-        <label for="gift_exchange_id">Select Gift Exchange:</label>
-        <select name="gift_exchange_id" id="gift_exchange_id" onchange="this.form.submit()">
-            <option value="">--Select an Event--</option>
-            <?php
-                foreach ($giftExchanges as $giftExchange) {
-                    echo "<option value='{$giftExchange['GiftExchangeID']}'" . ($giftExchange['GiftExchangeID'] == $giftExchangeIDSelected ? ' selected' : '') . ">{$giftExchange['EventName']}</option>";
-                }
-            ?>
-        </select><br><br>
-        <?php endif; ?>
+            <!-- Gift Exchange Selection -->
+            <?php if ($groupID): ?>
+            <div class="event-groups">
+                <label for="gift_exchange_id">Select Gift Exchange:</label>
+                <select name="gift_exchange_id" id="gift_exchange_id" onchange="this.form.submit()">
+                    <option value="">--Select an Event--</option>
+                    <?php
+                        foreach ($giftExchanges as $giftExchange) {
+                            echo "<option value='{$giftExchange['GiftExchangeID']}'" . ($giftExchange['GiftExchangeID'] == $giftExchangeIDSelected ? ' selected' : '') . ">{$giftExchange['EventName']}</option>";
+                        }
+                    ?>
+                </select><br><br>
+            </div>
+            <?php endif; ?>
 
-        <!-- Participants -->
-        <?php if ($giftExchangeIDSelected): ?>
-        <label for="participants">Add Participants:</label><br>
-        <?php
-            if (isset($members)) {
-                foreach ($members as $member) {
-                    echo "
-                    <input type='checkbox' name='participants[{$member['MemberID']}]'>
-                    {$member['Username']}
-                    <input type='text' name='gift_preferences[{$member['MemberID']}]' placeholder='Gift Preference'><br>
-                    ";
-                }
-            }
-        ?>
-        <button type="submit">Add Participants</button>
-        <?php endif; ?>
-    </form>
+            <!-- Participants -->
+            <?php if ($giftExchangeIDSelected): ?>
+            <div class="event-groups">
+                <label for="participants">Add Participants:</label><br>
+                <?php
+                    if (isset($members)) {
+                        foreach ($members as $member) {
+                            echo "
+                            <input type='checkbox' name='participants[{$member['MemberID']}]'>
+                            {$member['Username']}
+                            <input type='text' name='gift_preferences[{$member['MemberID']}]' placeholder='Gift Preference'><br>
+                            ";
+                        }
+                    }
+                ?>
+                <button type="submit">Add Participants</button>
+            </div>
+            <?php endif; ?>
+        </form>
+    </div>
 </body>
 </html>
 

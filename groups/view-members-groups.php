@@ -1,10 +1,11 @@
 <?php
     include '../db-connect.php';
 
-    // Check if GroupID is provided
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['GroupID'])) {
-        $groupID = intval($_POST['GroupID']);
-        
+    // This is easily refactorable, but I do not have the time anymore.
+    // Fetch data for the page after the POST submission
+    if (isset($_GET['GroupID'])) {
+        $groupID = intval($_GET['GroupID']);
+
         // Fetch group details to check if the group exists
         $stmt = $pdo->prepare("SELECT * FROM `Groups` WHERE GroupID = :groupID");
         $stmt->bindParam(':groupID', $groupID, PDO::PARAM_INT);
@@ -16,7 +17,7 @@
             die("Group not found.");
         }
 
-        // Check if the member is in the group before attempting to delete
+        // Check if the member is in the group
         $stmt = $pdo->prepare("SELECT * FROM GroupMembers WHERE GroupID = :groupID AND MemberID = :memberID");
         $stmt->bindParam(':groupID', $groupID, PDO::PARAM_INT);
         $stmt->bindParam(':memberID', $memberID, PDO::PARAM_INT);
@@ -44,8 +45,100 @@
         $stmt->bindParam(':groupID', $groupID, PDO::PARAM_INT);
         $stmt->execute();
         $groupMembers = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } else {
-        die("Invalid request.");
+
+        // Check if the current session is an admin in the group
+        $stmt = $pdo->prepare("
+            SELECT COUNT(*) 
+            FROM GroupMembers 
+            WHERE MemberID = :memberID AND Role = 'Admin'
+        ");
+        $stmt->bindParam(':memberID', $memberID, PDO::PARAM_INT);
+        $stmt->execute();
+        $isAdmin = $stmt->fetchColumn();
+    }
+
+    // Check if GroupID is provided
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['GroupID'])) {
+        $groupID = intval($_POST['GroupID']);
+        
+        // Fetch group details to check if the group exists
+        $stmt = $pdo->prepare("SELECT * FROM `Groups` WHERE GroupID = :groupID");
+        $stmt->bindParam(':groupID', $groupID, PDO::PARAM_INT);
+        $stmt->execute();
+        $group = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        // Check if the group exists
+        if (!$group) {
+            die("Group not found.");
+        }
+
+        // Check if the member is in the group
+        $stmt = $pdo->prepare("SELECT * FROM GroupMembers WHERE GroupID = :groupID AND MemberID = :memberID");
+        $stmt->bindParam(':groupID', $groupID, PDO::PARAM_INT);
+        $stmt->bindParam(':memberID', $memberID, PDO::PARAM_INT);
+        $stmt->execute();
+        $membership = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // If the member is not part of the group, show an error
+        if (!$membership) {
+            die("You are not a member of this group.");
+        }
+
+        // Get all the MemberIDs in GroupMembers
+        $stmt = $pdo->prepare("SELECT MemberID FROM GroupMembers WHERE GroupID = :groupID");
+        $stmt->bindParam(':groupID', $groupID, PDO::PARAM_INT);
+        $stmt->execute();
+        $memberIDArray = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Get the details of every Member in the group
+        $stmt = $pdo->prepare("
+            SELECT m.MemberID, m.Username, m.FirstName, m.LastName, gm.Role 
+            FROM Members m
+            JOIN GroupMembers gm ON m.MemberID = gm.MemberID
+            WHERE gm.GroupID = :groupID
+        ");
+        $stmt->bindParam(':groupID', $groupID, PDO::PARAM_INT);
+        $stmt->execute();
+        $groupMembers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Check if the current session is an admin in the group
+        $stmt = $pdo->prepare("
+            SELECT COUNT(*) 
+            FROM GroupMembers 
+            WHERE MemberID = :memberID AND Role = 'Admin'
+        ");
+        $stmt->bindParam(':memberID', $memberID, PDO::PARAM_INT);
+        $stmt->execute();
+        $isAdmin = $stmt->fetchColumn();
+
+
+        // Handle role update
+        if (isset($_POST['MemberID'], $_POST['Role'])) {
+            $targetMemberID = intval($_POST['MemberID']);
+            $newRole = htmlspecialchars($_POST['Role']);
+
+            // Return true if the member is an admin in any group, false otherwise
+            if ($isAdmin) {
+                // Ensure the admin does not target himself
+                if ($targetMemberID !== $memberID) {
+                    $stmt = $pdo->prepare("
+                        UPDATE GroupMembers 
+                        SET Role = :role 
+                        WHERE GroupID = :groupID AND MemberID = :memberID
+                    ");
+                    $stmt->bindParam(':role', $newRole, PDO::PARAM_STR);
+                    $stmt->bindParam(':groupID', $groupID, PDO::PARAM_INT);
+                    $stmt->bindParam(':memberID', $targetMemberID, PDO::PARAM_INT);
+                    $stmt->execute();
+
+                }
+                // Redirect to the same page after processing the form
+                header("Location: " . $_SERVER['PHP_SELF'] . "?GroupID=" . intval($_POST['GroupID']));
+                exit;
+            } else {
+                echo "You cannot modify your own role.";
+            }
+        }
     }
 ?>
 
@@ -73,6 +166,7 @@
                 <div class="head-item">First Name</div>
                 <div class="head-item">Last Name</div>
                 <div class="head-item">Role</div>
+                <div class="head-item">Action</div>
             </div>
             <?php foreach ($groupMembers as $member): ?>
                 <div class="member-details-body">
@@ -81,6 +175,43 @@
                     <div class="body-item"><?php echo htmlspecialchars($member['FirstName']); ?></div>
                     <div class="body-item"><?php echo htmlspecialchars($member['LastName']); ?></div>
                     <div class="body-item"><?php echo htmlspecialchars($member['Role']); ?></div>
+
+                    <!-- Display form only for other members -->
+                    <!-- Case 1: Other member, but not group admin -->
+                    <?php if ($member['MemberID'] !== $_SESSION['MemberID'] && !$isAdmin): ?>
+                        <div class="body-item">
+                            <form method="POST" action="">
+                                <input type="hidden" name="GroupID" value="<?php echo htmlspecialchars($groupID); ?>">
+                                <input type="hidden" name="MemberID" value="<?php echo htmlspecialchars($member['MemberID']); ?>">
+                                
+                                <label for="Role_<?php echo htmlspecialchars($member['MemberID']); ?>">Role:</label>
+                                <select name="Role" id="Role_<?php echo htmlspecialchars($member['MemberID']); ?>">
+                                    <option value="Member" <?php echo $member['Role'] === 'Member' ? 'selected' : ''; ?>>Member</option>
+                                    <option value="Admin" <?php echo $member['Role'] === 'Admin' ? 'selected' : ''; ?>>Admin</option>
+                                </select>
+                                <button type="submit">Update</button>
+                            </form>
+                        </div>
+                    <!-- Case 2: Other member, but group admin -->
+                    <?php elseif ($member['MemberID'] !== $_SESSION['MemberID'] && $isAdmin): ?>
+                        <div class="body-item">
+                            <form method="POST" action="">
+                                <input type="hidden" name="GroupID" value="<?php echo htmlspecialchars($groupID); ?>">
+                                <input type="hidden" name="MemberID" value="<?php echo htmlspecialchars($member['MemberID']); ?>">
+                                
+                                <label for="Role_<?php echo htmlspecialchars($member['MemberID']); ?>">Role:</label>
+                                <select name="Role" id="Role_<?php echo htmlspecialchars($member['MemberID']); ?>">
+                                    <option value="Member" <?php echo $member['Role'] === 'Member' ? 'selected' : ''; ?>>Member</option>
+                                    <option value="Admin" <?php echo $member['Role'] === 'Admin' ? 'selected' : ''; ?>>Admin</option>
+                                </select>
+                                <button type="submit">Update</button>
+                            </form>
+                        </div>
+                    <?php else: ?>
+                        <div class="body-item">
+                            <p>No action</p>
+                        </div>
+                    <?php endif; ?>
                 </div>
             <?php endforeach; ?>
         </div>
