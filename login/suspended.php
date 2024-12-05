@@ -20,11 +20,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Account Suspended</title>
+    <link href="../styles.css?<?php echo time(); ?>" rel="stylesheet"/>
 </head>
 <body>
     <h1>Your account is suspended.</h1>
     <p>You will regain access in: <strong><?php echo htmlspecialchars($remaining); ?></strong></p>
     <p>Please contact support if you have any questions.</p>
+    <br>
+    <a href="./logout.php" target="_self">Logout?</a>
 </body>
 </html>

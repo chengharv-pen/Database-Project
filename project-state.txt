@@ -61,11 +61,12 @@ how???????????? ✅
 
 -------------------------- Project Intricacies -------------------------- 
 
-0 - Warning System (this is most likely a skip due to time constraints)
-Incrementing warnings ❌
-Suspending an account ❌
-Fines (ONLY FOR BUSINESS ACCOUNTS) ❌
-Only Administrators should issue Warnings ❌
+0 - Warning System
+Incrementing warnings ✅
+Suspending an account ✅
+Fines (ONLY FOR BUSINESS ACCOUNTS) ✅
+Only Administrators should issue Warnings ✅
+Warnings for Comments, Posts, Chat Messages and Emails ❌
 
 1 - Email System
 how should i simulate this...? ✅
@@ -80,3 +81,52 @@ Junior >>> can post (has control over the scope of it), can control the comments
 Senior >>> can create groups and add people to groups ✅
 Administrator >>> can change privilege/status of other members ✅
 
+-------------------------- Project Intricacies (I ran out of time) -------------------------- 
+
+3 - Notification System (this is definitely not being implemented due to time constraints)
+A chat message should send a notification ❌ 
+A new Group Post that is not from yourself should send a notification ❌
+A new Email should send a notification ❌
+An Event that you participated in that finishes should send a notification ❌
+The assignment of Secret Santas for a Gift Exchange should send a notification ❌
+A Warning should send a notification ❌
+A Fine should send a notification ❌
+
+4 - Plebiscite System (this is definitely not being implemented due to time constraints)
+I have no clue how to implement this ❌
+
+To help with implementing these, I propose these tables...
+
+-- Create Plebiscite relation
+CREATE TABLE Plebiscite (
+	PlebisciteID INT PRIMARY KEY AUTO_INCREMENT,
+	InitiatorID INT NOT NULL, -- The member who initiated the plebiscite
+	TargetMemberID INT NOT NULL, -- The non-person member being voted out
+	Reason TEXT, -- Reason for the vote
+	StartDate DATETIME DEFAULT CURRENT_TIMESTAMP, -- When the plebiscite started
+	EndDate DATETIME, -- When the plebiscite ended (if applicable)
+	Status ENUM('Pending', 'Ongoing', 'Completed', 'Cancelled') DEFAULT 'Pending', -- Status of the plebiscite
+	FOREIGN KEY (InitiatorID) REFERENCES Members(MemberID) ON DELETE CASCADE,
+	FOREIGN KEY (TargetMemberID) REFERENCES Members(MemberID) ON DELETE CASCADE
+);
+
+-- Create PlebisciteVotes relation
+CREATE TABLE PlebisciteVotes (
+	VoteID INT PRIMARY KEY AUTO_INCREMENT,
+	PlebisciteID INT NOT NULL, -- The plebiscite vote being cast
+	MemberID INT NOT NULL, -- The member who is voting
+	Vote ENUM('Yes', 'No') NOT NULL, -- Vote on the plebiscite (Yes or No)
+	VoteDate DATETIME DEFAULT CURRENT_TIMESTAMP, -- When the vote was cast
+	FOREIGN KEY (PlebisciteID) REFERENCES Plebiscite(PlebisciteID) ON DELETE CASCADE,
+	FOREIGN KEY (MemberID) REFERENCES Members(MemberID) ON DELETE CASCADE
+);
+
+--  Create Notifications Relation
+CREATE TABLE Notifications (
+	NotificationID INT PRIMARY KEY AUTO_INCREMENT,
+	MemberID INT NOT NULL,
+	Content TEXT NOT NULL,
+	NotificationDate DATETIME NOT NULL,
+	Type ENUM('Unread', 'Read') DEFAULT 'Unread',
+	FOREIGN KEY (MemberID) REFERENCES Members(MemberID) ON DELETE CASCADE
+);

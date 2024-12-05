@@ -144,7 +144,7 @@
             <button type="submit">Create Account</button>
         </form>
         
-        <a href="./login.php">Login to Account?</a>
+        <br><a href="./login.php">Login to Account?</a>
 
         <!-- Display feedback below the form -->
         <?php if (!empty($feedback)): ?>

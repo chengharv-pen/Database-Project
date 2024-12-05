@@ -148,9 +148,9 @@
             <button type="submit">Login</button>
         </form>
 
-        <a href="./create-account.php">Do not have an account?</a>
-        </br>
-        <a href="./change-login.php">Forgot Password?</a>
+        <br><a href="./create-account.php">Do not have an account?</a>
+        <br>
+        <br><a href="./change-login.php">Forgot Password?</a>
 
         <?php if (!empty($error)): ?>
             <div class="feedback">
