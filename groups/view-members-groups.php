@@ -140,6 +140,45 @@
             }
         }
     }
+
+    // Group member removal
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['RemoveMemberID'], $_POST['GroupID'])) {
+        $groupID = intval($_POST['GroupID']);
+        $removeMemberID = intval($_POST['RemoveMemberID']);
+        
+        // Check if the current user is an admin in the group
+        $stmt = $pdo->prepare("
+            SELECT COUNT(*) 
+            FROM GroupMembers 
+            WHERE MemberID = :memberID AND GroupID = :groupID AND Role = 'Admin'
+        ");
+        $stmt->bindParam(':memberID', $_SESSION['MemberID'], PDO::PARAM_INT);
+        $stmt->bindParam(':groupID', $groupID, PDO::PARAM_INT);
+        $stmt->execute();
+        $isAdmin = $stmt->fetchColumn();
+        
+        if ($isAdmin) {
+            // Prevent admin from removing themselves
+            if ($removeMemberID === $_SESSION['MemberID']) {
+                die("You cannot remove yourself from the group.");
+            }
+
+            // Remove the member from the group
+            $stmt = $pdo->prepare("
+                DELETE FROM GroupMembers 
+                WHERE GroupID = :groupID AND MemberID = :memberID
+            ");
+            $stmt->bindParam(':groupID', $groupID, PDO::PARAM_INT);
+            $stmt->bindParam(':memberID', $removeMemberID, PDO::PARAM_INT);
+            $stmt->execute();
+
+            // Redirect after successful removal
+            header("Location: " . $_SERVER['PHP_SELF'] . "?GroupID=" . $groupID);
+            exit;
+        } else {
+            die("You do not have permission to remove members.");
+        }
+    }
 ?>
 
 <!DOCTYPE html>
@@ -166,7 +205,8 @@
                 <div class="head-item">First Name</div>
                 <div class="head-item">Last Name</div>
                 <div class="head-item">Role</div>
-                <div class="head-item">Action</div>
+                <div class="head-item">Role Action</div>
+                <div class="head-item">Member Action</div>
             </div>
             <?php foreach ($groupMembers as $member): ?>
                 <div class="member-details-body">
@@ -212,6 +252,20 @@
                             <p>No action</p>
                         </div>
                     <?php endif; ?>
+
+                    
+                    <!-- Display a remove member button only for admins -->
+                    <div class="body-item">
+                        <?php if ($isAdmin && $member['MemberID'] !== $_SESSION['MemberID']): ?>
+                            <form method="POST" action="">
+                                <input type="hidden" name="GroupID" value="<?php echo htmlspecialchars($groupID); ?>">
+                                <input type="hidden" name="RemoveMemberID" value="<?php echo htmlspecialchars($member['MemberID']); ?>">
+                                <button type="submit" class="remove-button">Remove</button>
+                            </form>
+                        <?php else: ?>
+                            <p>No action</p>
+                        <?php endif; ?>
+                    </div>
                 </div>
             <?php endforeach; ?>
         </div>
