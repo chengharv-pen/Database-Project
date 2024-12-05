@@ -11,6 +11,7 @@
 
     if ($privilege === 'Administrator') {
         echo "<a href='./warnings/admin-dashboard.php'>Admin Dashboard</a>";
+        echo "<br><a href='./members/approve-senior-requests.php'>Approve Senior Requests</a>";
     }
 
     // Check the Member's Account type. If it is Business, then show a link to payments.php

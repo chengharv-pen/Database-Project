@@ -194,6 +194,9 @@
             if ($friendStatus && isset($friendStatus['Status']) && $friendStatus['Status'] === 'Active'): ?>
                 <!-- If added as Friend, then show this -->
                 <button type="submit" name="remove_friend" value="remove_friend" class="remove-friend-button"> Remove Friend </button> 
+            <?php elseif ($friendStatus && isset($friendStatus['Status']) && $friendStatus['Status'] === 'Pending'): ?>
+                <!-- dead line, do not show the button -->
+                <strong> Pending Friend Request... </strong>
             <?php else: ?>
                 <!-- If not added as Friend yet, then show this -->
                 <button type="submit" name="add_friend" value="add_friend" class="friend-button"> Add to Friends </button>
@@ -208,11 +211,11 @@
                     Unblock
                 </button>
             <?php else: ?>
+                <textarea name="reason" placeholder="Reason for blocking (optional)" rows="2" cols="40"></textarea><br>
                 <!-- Block button with optional reason -->
                 <button type="submit" name="action" value="block" class="block-button">
                     Block
                 </button>
-                <textarea name="reason" placeholder="Reason for blocking (optional)" rows="2" cols="40"></textarea>
             <?php endif; ?>
         </form>
     </div>

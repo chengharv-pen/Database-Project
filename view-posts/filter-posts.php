@@ -78,7 +78,6 @@
         }
 
         // Execute the query
-        echo $query;
         $stmt = $pdo->prepare($query);
         $stmt->execute($params);
         $posts = $stmt->fetchAll(PDO::FETCH_ASSOC);

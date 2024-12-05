@@ -113,7 +113,24 @@
                     <div class="group-button">
                         <form action="./join-groups.php" method="POST">
                             <input type="hidden" name="GroupID" value="<?= $group['GroupID'] ?>">
-                            <button type="submit">Join</button>
+
+                            <?php 
+                                // Check if there's already a pending request for this member to join this group
+                                $sql = "SELECT Status FROM GroupJoinRequests WHERE MemberID = :memberID AND GroupID = :groupID";
+                                $statement = $pdo->prepare($sql);
+                                $statement->bindParam(':memberID', $memberID, PDO::PARAM_INT);
+                                $statement->bindParam(':groupID', $group['GroupID'], PDO::PARAM_INT);
+                                $statement->execute();
+
+                                $joinRequest = $statement->fetch(PDO::FETCH_ASSOC);
+
+                                // If a pending request exists, the button should not be visible
+                                $showJoinButton = !$joinRequest || $joinRequest['Status'] !== 'Pending';
+                            if ($showJoinButton): ?>
+                                <button type="submit">Join</button>
+                            <?php else: ?>
+                                <strong> Pending Group Join Request... </strong>
+                            <?php endif; ?>
                         </form>
                     </div>
 

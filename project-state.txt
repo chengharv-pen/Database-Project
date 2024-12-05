@@ -78,6 +78,7 @@ A Member should have Status Inactive if he is not logged in. ✅
 We should prompt for new Username/Password if NeedsUsernameChange/NeedsPasswordChange are TRUE ✅
 
 Junior >>> can post (has control over the scope of it), can control the comments. ✅
+		   can request to be a Senior ✅
 Senior >>> can create groups and add people to groups ✅
 Administrator >>> can change privilege/status of other members ✅
 

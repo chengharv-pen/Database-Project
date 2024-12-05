@@ -4,6 +4,23 @@
     // Handling privilege change (if form is submitted)
     $privilegesArray = ['Administrator', 'Senior', 'Junior'];
 
+    // Fetch the member details
+    if (isset($_POST['member_id'])) {
+        $memberId = $_POST['member_id'];
+
+        // Get the current member data for further checks
+        $sql = "SELECT Privilege FROM Members WHERE MemberID = :memberID";
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindParam(':memberID', $memberId, PDO::PARAM_INT);
+        $stmt->execute();
+        $member = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        // Check if member exists
+        if (!$member) {
+            die("Member not found.");
+        }
+    }
+
     if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['new_privilege'])) {
         
         // If the user is the last Administrator, do not allow their privilege to be downgraded
@@ -15,7 +32,23 @@
         
         // Make sure the new privilege is valid
         if (in_array($newPrivilege, $privilegesArray)) {
-            // Update the member's privilege in the database
+
+            // Step 1: If the new privilege is 'Junior' (or another lower privilege), cancel or deny both pending and approved promotion requests
+            if ($newPrivilege === 'Junior') {
+                // Deny any pending promotion requests for this member
+                $sql = "UPDATE PromotionRequests SET Status = 'denied' WHERE MemberID = :memberID AND Status = 'pending'";
+                $stmt = $pdo->prepare($sql);
+                $stmt->bindParam(':memberID', $memberId, PDO::PARAM_INT);
+                $stmt->execute();
+
+                // Deny any approved promotion requests for this member
+                $sql = "UPDATE PromotionRequests SET Status = 'denied' WHERE MemberID = :memberID AND Status = 'approved'";
+                $stmt = $pdo->prepare($sql);
+                $stmt->bindParam(':memberID', $memberId, PDO::PARAM_INT);
+                $stmt->execute();
+            }
+
+            // Step 2: Update the member's privilege in the database
             $updatePrivilegeSql = "UPDATE Members 
                                         SET Privilege = :privilege 
                                         WHERE MemberID = :memberID";

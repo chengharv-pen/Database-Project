@@ -75,10 +75,35 @@
         
         <p>Contact me: <?php echo htmlspecialchars($member['Email']); ?></p>
 
-        </br>
-        </br>
+        <!-- 
+            Form that lets a Junior Member request for a promotion to Senior Member 
+            Only Administrator Members will be able to approve it
+        -->
+        <form action="./senior-promotion.php" method="POST">
+            <?php
+                // Check if the member has already sent a request
+                $sql = "SELECT Status from PromotionRequests WHERE MemberID = :memberID";
+                $statement = $pdo->prepare($sql);
+                $statement->bindParam(':memberID', $memberID, PDO::PARAM_INT);
+                $statement->execute();
+
+                $status = $statement->fetch(PDO::FETCH_ASSOC);
+                
+            if ($privilege === 'Junior' && empty($status)): ?>
+                <button type="submit" name="senior-promotion" class="senior-promotion">Request Senior Promotion</button>
+            <?php elseif($privilege === 'Junior' && $status['Status'] === 'denied'): ?>
+                <button type="submit" name="senior-promotion" class="senior-promotion">Request Senior Promotion</button>
+            <?php else: ?>
+                <strong> Pending Senior Promotion Request... </strong>
+            <?php endif; ?>
+        </form>
+
+
+        <br>
+        <br>
         <a href="./edit-members.php">Edit Display Information?</a>
-        </br>
+        <br>
+        <br>
         <a href="./delete-members.php">Want to delete your account?</a>
     </div>
 

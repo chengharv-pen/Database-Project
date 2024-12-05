@@ -19,7 +19,7 @@
 
         // If there are no messages, set a placeholder message
         if (!$messages) {
-            $messages = ["There are no messages in this"];
+            $messages = []; // array must be empty to avoid illegal access
         }
     }
 
@@ -90,38 +90,48 @@
                     $stmt->execute();
                     $relationships = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-                    foreach ($relationships as $relationship): 
+                    if (!empty($relationships)): // Check if relationships exist
+                        foreach ($relationships as $relationship): 
 
-                        if ($relationship['SenderMemberID'] == $memberID) {
-                            $chatWithID = $relationship['ReceiverMemberID'];
-                        } else {
-                            $chatWithID = $relationship['SenderMemberID'];
-                        }
+                            if ($relationship['SenderMemberID'] == $memberID) {
+                                $chatWithID = $relationship['ReceiverMemberID'];
+                            } else {
+                                $chatWithID = $relationship['SenderMemberID'];
+                            }
 
-                        // Fetch username of the receiver
-                        $userStmt = $pdo->prepare("SELECT Username FROM Members WHERE MemberID = :chatWithID");
-                        $userStmt->bindParam(':chatWithID', $chatWithID, PDO::PARAM_INT);
-                        $userStmt->execute();
-                        $user = $userStmt->fetch(PDO::FETCH_ASSOC);
+                            // Fetch username of the receiver
+                            $userStmt = $pdo->prepare("SELECT Username FROM Members WHERE MemberID = :chatWithID");
+                            $userStmt->bindParam(':chatWithID', $chatWithID, PDO::PARAM_INT);
+                            $userStmt->execute();
+                            $user = $userStmt->fetch(PDO::FETCH_ASSOC);
+
+                            if ($user && isset($user['Username'])): // Ensure username exists
                 ?>
-                    <div class="chat-option" data-chat-with="<?= $chatWithID ?>" onclick="submitForm(this)">
-                        <?= htmlspecialchars($user['Username']); ?>
-                    </div>
-                <?php endforeach; ?>
+                            <div class="chat-option" data-chat-with="<?= $chatWithID ?>" onclick="submitForm(this)">
+                                <?= htmlspecialchars($user['Username']); ?>
+                            </div>
+                            <?php endif; ?>
+                        <?php endforeach; ?>
+                    <?php else: ?>
+                        <p>No friends to chat with.</p>
+                    <?php endif; ?>
                 </select>
             </form>
         </div>
 
         <div class="chat-display-messages">
             <!-- Chat with a specific member -->
-            <?php if (isset($messages) && !empty($messages)): ?>
+            <?php if (!empty($messages)): ?>
                 <div class="chat-history" id="chat-history">
                     <?php foreach ($messages as $message): ?>
                         <div class="chat-message">
                             <?php 
-                                // Determine the name of the sender
-                                $senderID = $message['SenderID'];
-                                $receiverID = $message['ReceiverID'];
+                                if (!is_array($message)) continue; // Ensure message is an array
+                                
+                                $senderID = $message['SenderID'] ?? null;
+                                $receiverID = $message['ReceiverID'] ?? null;
+                                $content = $message['Content'] ?? '[No content]';
+                                $dataSent = $message['DataSent'] ?? '[Unknown time]';
 
                                 // Fetch sender's username
                                 $stmt = $pdo->prepare("SELECT Username FROM Members WHERE MemberID = :senderID");
@@ -129,20 +139,14 @@
                                 $stmt->execute();
                                 $sender = $stmt->fetch(PDO::FETCH_ASSOC);
 
-                                // Fetch receiver's username
-                                $stmt = $pdo->prepare("SELECT Username FROM Members WHERE MemberID = :receiverID");
-                                $stmt->bindParam(':receiverID', $receiverID, PDO::PARAM_INT);
-                                $stmt->execute();
-                                $receiver = $stmt->fetch(PDO::FETCH_ASSOC);
-
                                 $isCurrentUser = ($senderID == $memberID); // Check if the message is sent by the current user
-                            ?> 
+                            ?>
                             <div class="chat-message-box <?= $isCurrentUser ? 'right' : 'left'; ?>">
                                 <strong>
-                                    <?= $isCurrentUser ? "You: " : htmlspecialchars($sender['Username']) . ": "; ?> 
+                                    <?= $isCurrentUser ? "You" : htmlspecialchars($sender['Username'] ?? 'Unknown Sender'); ?>:
                                 </strong>
-                                <p><?= htmlspecialchars($message['Content']); ?></p>
-                                <small>Sent at: <?= $message['DataSent']; ?></small>
+                                <p><?= htmlspecialchars($content); ?></p>
+                                <small>Sent at: <?= htmlspecialchars($dataSent); ?></small>
                             </div>
                         </div>
                     <?php endforeach; ?>

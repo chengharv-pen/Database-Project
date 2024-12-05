@@ -114,11 +114,12 @@
                 <option value="Colleagues">Colleagues</option>
                 <option value="Other">Other</option>
             </select>
-            </br>
-            </br>
+            <br>
+            <br>
 
             <button type="submit">Create Group</button>
         </form>
+        <br>
         <a href="./display-groups.php">Display Groups?</a>
     <?php endif; ?>
 
