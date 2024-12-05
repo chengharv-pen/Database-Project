@@ -19,7 +19,7 @@
             try {
                 // Fetch participants, assigned Secret Santa, and current status from GiftExchangeParticipants
                 $stmt = $pdo->prepare("
-                    SELECT gep.MemberID, m.Username AS MemberName, gep.AssignedToMemberID, m2.Username AS AssignedToName, gep.ExchangeStatus
+                    SELECT gep.MemberID, m.Username AS MemberName, gep.AssignedToMemberID, m2.Username AS AssignedToName, gep.ExchangeStatus, gep.PaymentAmount 
                     FROM GiftExchangeParticipants gep
                     LEFT JOIN Members m ON gep.MemberID = m.MemberID
                     LEFT JOIN Members m2 ON gep.AssignedToMemberID = m2.MemberID
@@ -37,6 +37,7 @@
                             <th>Participant</th>
                             <th>Assigned To</th>
                             <th>Current Status</th>
+                            <th>Payment Amount</th>
                         </tr>";
 
                 foreach ($participants as $participant) {
@@ -44,6 +45,7 @@
                             <td>" . htmlspecialchars($participant['MemberName']) . "</td>
                             <td>" . htmlspecialchars($participant['AssignedToName']) . "</td>
                             <td>" . htmlspecialchars($participant['ExchangeStatus']) . "</td>
+                            <td>" . htmlspecialchars($participant['PaymentAmount']) . "</td>
                         </tr>";
                 }
                 echo "</table>";
