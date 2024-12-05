@@ -13,6 +13,22 @@
         echo "<a href='./warnings/admin-dashboard.php'>Admin Dashboard</a>";
     }
 
+    // Check the Member's Account type. If it is Business, then show a link to payments.php
+    try {
+        $stmt = $pdo->prepare("
+            SELECT AccountType FROM Members WHERE MemberID = :memberID
+        ");
+        $stmt->execute([':memberID' => $memberID]);
+        $accountType = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if ($accountType['AccountType'] === 'Business') {
+            echo "<a href='./warnings/payments.php'>Payments</a>";
+        }
+
+    } catch (PDOException $e) {
+        die("Error fetching posts or comments: " . $e->getMessage());
+    } 
+
     // Fetch posts from the database
     try {
         $stmt = $pdo->prepare("

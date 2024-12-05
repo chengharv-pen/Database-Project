@@ -42,6 +42,7 @@
                         $suspensionsCount = $member['Suspensions'];
 
                         // Determine the suspension period based on the number of previous suspensions
+                        // The unit will be in DAY
                         if ($suspensionsCount == 0) {
                             $suspensionPeriod = 8; // First suspension
                         } elseif ($suspensionsCount == 1) {
@@ -50,20 +51,34 @@
                             $suspensionPeriod = 365; // Third suspension and beyond
                         }
 
-                        
-
                         // Suspend member and create an entry in the Suspensions table
                         $stmt = $pdo->prepare("UPDATE Members SET Status = 'Suspended', Suspensions = Suspensions + 1 WHERE MemberID = :member_id");
                         $stmt->execute([':member_id' => $receiverMemberID]);
 
                         // Insert into Suspensions table with the calculated suspension time
-                        $suspensionStmt = $pdo->prepare("INSERT INTO Suspensions (MemberID, SuspendedAt, SuspensionEnd, Reason, SuspendedBy) 
-                                                        VALUES (:member_id, NOW(), DATE_ADD(NOW(), INTERVAL :suspension_period DAY), :reason, :suspended_by)");
+                        $suspensionStmt = $pdo->prepare("
+                            INSERT INTO Suspensions 
+                            (
+                                MemberID, 
+                                StartDate, 
+                                EndDate, 
+                                Reason, 
+                                IssuedBy
+                            ) 
+                            VALUES 
+                            (
+                                :member_id, 
+                                NOW(), 
+                                DATE_ADD(NOW(), INTERVAL :suspension_period DAY), 
+                                :reason, 
+                                :issued_by
+                            )"
+                        );
                         $suspensionStmt->execute([
                             ':member_id' => $receiverMemberID,
                             ':suspension_period' => $suspensionPeriod,
                             ':reason' => 'Excessive warnings',
-                            ':suspended_by' => $memberID // Administrator issuing the suspension
+                            ':issued_by' => $memberID // Administrator issuing the suspension
                         ]);
                     }
                 }
@@ -86,8 +101,23 @@
                         }
 
                         // Insert fine payment record
-                        $paymentStmt = $pdo->prepare("INSERT INTO Payments (MemberID, Amount, PaymentDate, Description) 
-                                                      VALUES (:member_id, :amount, NOW(), :description)");
+                        $paymentStmt = $pdo->prepare("
+                            INSERT INTO Payments 
+                            (
+                                MemberID, 
+                                Amount, 
+                                PaymentDate, 
+                                Description
+                            ) 
+                            VALUES 
+                            (
+                                :member_id, 
+                                :amount, 
+                                NOW(), 
+                                :description
+                            )
+                        ");
+
                         $paymentStmt->execute([
                             ':member_id' => $receiverMemberID,
                             ':amount' => $fineAmount,
@@ -101,11 +131,11 @@
 
                             // Determine the suspension period based on the number of previous suspensions
                             if ($suspensionsCount == 0) {
-                                $suspensionPeriod = '7 DAY'; // First suspension
+                                $suspensionPeriod = 7; // First suspension
                             } elseif ($suspensionsCount == 1) {
-                                $suspensionPeriod = '30 DAY'; // Second suspension
+                                $suspensionPeriod = 30; // Second suspension
                             } else {
-                                $suspensionPeriod = '1 YEAR'; // Third suspension and beyond
+                                $suspensionPeriod = 365; // Third suspension and beyond
                             }
 
                             // Increment a Member's Suspensions by 1
@@ -113,13 +143,29 @@
                             $stmt->execute([':member_id' => $receiverMemberID]);
 
                             // Log the suspension in the Suspensions table
-                            $suspensionStmt = $pdo->prepare("INSERT INTO Suspensions (MemberID, SuspendedAt, SuspensionEnd, Reason, SuspendedBy) 
-                                                            VALUES (:member_id, NOW(), DATE_ADD(NOW(), INTERVAL :suspension_period), :reason, :suspended_by)");
+                            $suspensionStmt = $pdo->prepare("
+                                INSERT INTO Suspensions 
+                                (
+                                    MemberID, 
+                                    StartDate, 
+                                    EndDate, 
+                                    Reason, 
+                                    IssuedBy
+                                ) 
+                                VALUES 
+                                (
+                                    :member_id, 
+                                    NOW(), 
+                                    DATE_ADD(NOW(), INTERVAL :suspension_period DAY), 
+                                    :reason, 
+                                    :issued_by
+                                )
+                            ");
                             $suspensionStmt->execute([
                                 ':member_id' => $receiverMemberID,
                                 ':suspension_period' => $suspensionPeriod,
                                 ':reason' => 'Excessive fines (more than 2)',
-                                ':suspended_by' => $memberID // Administrator issuing the suspension
+                                ':issued_by' => $memberID // Administrator issuing the suspension
                             ]);
                         }
                     }

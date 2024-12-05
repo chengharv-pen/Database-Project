@@ -10,7 +10,7 @@
     session_start();
 
     // Database connection
-    $host = "localhost"; // Change if using a different host
+    $host = "localhost";
     $dbname = "db-schema2";
     $username = "root";
     $password = "";
@@ -20,7 +20,7 @@
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     } catch (PDOException $e) {
         die("Database connection failed: " . $e->getMessage());
-    }   
+    }
 
     // Handle login form submission
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -45,29 +45,70 @@
             // Verify the password
             if (password_verify($passwordInput, $user['Password'])) {
 
-                // Check if account status is inactive and set it to active
-                if ($user['Status'] === 'Inactive') {
-                    // Update the user's status to Active upon successful login
-                    $updateStatusSql = "UPDATE Members SET Status = 'Active' WHERE MemberID = :memberID";
-                    $updateStatusStmt = $pdo->prepare($updateStatusSql);
-                    $updateStatusStmt->bindParam(':memberID', $user['MemberID'], PDO::PARAM_INT);
-                    $updateStatusStmt->execute();
+                // Check if the account is suspended
+                if ($user['Status'] === 'Suspended') {
+                    // Query to check remaining suspension time
+                    $suspensionQuery = $pdo->prepare("
+                        SELECT EndDate 
+                        FROM Suspensions 
+                        WHERE MemberID = :member_id AND EndDate > NOW() 
+                        ORDER BY EndDate DESC LIMIT 1
+                    ");
+                    $suspensionQuery->execute([':member_id' => $user['MemberID']]);
+                    $suspension = $suspensionQuery->fetch(PDO::FETCH_ASSOC);
+
+                    if ($suspension) {
+                        // Redirect to suspension notice page
+                        $_SESSION['EndDate'] = $suspension['EndDate'];
+                        header("Location: ./suspended.php");
+                        exit();
+                    } else {
+                        // If the suspension period has ended, update the member's status to Active
+                        $updateStatusSql = "UPDATE Members SET Status = 'Active' WHERE MemberID = :memberID";
+                        $updateStatusStmt = $pdo->prepare($updateStatusSql);
+                        $updateStatusStmt->bindParam(':memberID', $user['MemberID'], PDO::PARAM_INT);
+                        $updateStatusStmt->execute();
+                
+                        // Proceed with login
+                        $_SESSION['MemberID'] = $user['MemberID'];
+                        $_SESSION['Username'] = $user['Username'];
+                        $_SESSION['Privilege'] = $user['Privilege'];
+                
+                        // Update the LastLogin field
+                        $updateSql = "UPDATE Members SET LastLogin = NOW() WHERE MemberID = :memberID";
+                        $updateStmt = $pdo->prepare($updateSql);
+                        $updateStmt->bindParam(':memberID', $user['MemberID'], PDO::PARAM_INT);
+                        $updateStmt->execute();
+                
+                        // Redirect to the dashboard or welcome page
+                        header("Location: ../index.php");
+                        exit();
+                    }
+                    
+                } else {
+                    // If Inactive, set the status to Active
+                    if ($user['Status'] !== 'Active') {
+                        $updateStatusSql = "UPDATE Members SET Status = 'Active' WHERE MemberID = :memberID";
+                        $updateStatusStmt = $pdo->prepare($updateStatusSql);
+                        $updateStatusStmt->bindParam(':memberID', $user['MemberID'], PDO::PARAM_INT);
+                        $updateStatusStmt->execute();
+                    }
+
+                    // Store user information in the session
+                    $_SESSION['MemberID'] = $user['MemberID'];
+                    $_SESSION['Username'] = $user['Username'];
+                    $_SESSION['Privilege'] = $user['Privilege'];
+
+                    // Update the LastLogin field
+                    $updateSql = "UPDATE Members SET LastLogin = NOW() WHERE MemberID = :memberID";
+                    $updateStmt = $pdo->prepare($updateSql);
+                    $updateStmt->bindParam(':memberID', $user['MemberID'], PDO::PARAM_INT);
+                    $updateStmt->execute();
+
+                    // Redirect to a dashboard or welcome page
+                    header("Location: ../index.php");
+                    exit();
                 }
-
-                // Store user information in the session
-                $_SESSION['MemberID'] = $user['MemberID'];
-                $_SESSION['Username'] = $user['Username'];
-                $_SESSION['Privilege'] = $user['Privilege'];
-
-                // Update the LastLogin field
-                $updateSql = "UPDATE Members SET LastLogin = NOW() WHERE MemberID = :memberID";
-                $updateStmt = $pdo->prepare($updateSql);
-                $updateStmt->bindParam(':memberID', $user['MemberID'], PDO::PARAM_INT);
-                $updateStmt->execute();
-
-                // Redirect to a dashboard or welcome page
-                header("Location: ../index.php");
-                exit();
             } else {
                 $error = "Invalid username or password.";
             }

@@ -102,13 +102,6 @@
     <!-- Main Layout -->
     <div class="content-area">
         <iframe name="content" id="iframe" class="content" src="./home.php"></iframe>
-
-        <!-- Footer -->
-        <!-- Put the Status Selection on the bottom right IF LOGGED IN -->
-        <!-- <footer class="footer">
-            <p>This is a footer</p>
-            <p><b><a class="footer-nav-link" href="./contact-us.php" target="content">Contact Us</a></b></p>
-        </footer> -->
     </div>
 
     <script>
