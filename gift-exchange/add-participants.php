@@ -20,6 +20,7 @@
     // Handle form submission to add participants
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && $giftExchangeIDSelected) {
         $participants = $_POST['participants'] ?? [];
+        $giftPreferences = $_POST['gift_preferences'] ?? [];  // Collect the gift preferences
 
         try {
             // Insert participants into GiftExchangeParticipants table
@@ -27,11 +28,14 @@
                 INSERT INTO GiftExchangeParticipants (GiftExchangeID, MemberID, GiftPreference)
                 VALUES (:gift_exchange_id, :member_id, :gift_preference)
             ");
+            
             foreach ($participants as $memberID => $giftPreference) {
+                // If no gift preference is provided, set it as NULL or a default value
+                $preference = isset($giftPreferences[$memberID]) ? $giftPreferences[$memberID] : NULL;
                 $stmt->execute([
                     ':gift_exchange_id' => $giftExchangeIDSelected,
                     ':member_id' => $memberID,
-                    ':gift_preference' => $giftPreference,
+                    ':gift_preference' => $preference,  // Use the value from gift_preferences array
                 ]);
             }
             echo "Participants added successfully!";
@@ -100,3 +104,4 @@
     </form>
 </body>
 </html>
+

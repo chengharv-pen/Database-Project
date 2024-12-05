@@ -9,6 +9,10 @@
         echo "<p style='color: red; font-size: 20px;'>Error: " . htmlspecialchars($_GET['error']) . "</p>";
     }
 
+    if ($privilege === 'Administrator') {
+        echo "<a href='./warnings/admin-dashboard.php'>Admin Dashboard</a>";
+    }
+
     // Fetch posts from the database
     try {
         $stmt = $pdo->prepare("
