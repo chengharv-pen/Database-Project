@@ -173,6 +173,11 @@
                     </p>
 
                     <?php if ($post['AuthorID'] === $memberID): ?>
+                        <button type="submit" class="edit-post" name="EditPostID" value="<?= $post['PostID'] ?>"
+                        onclick="window.location.href='../publish-posts/edit-posts.php?EditPostID=<?= $post['PostID'] ?>';">
+                        Edit Post
+                        </button>
+                        <p>---------------------------------------------</p>
                         <form action="./delete-posts.php" method="GET">
                             <button type="submit" class="delete-post" name="DeletePostID" value="<?= $post['PostID'] ?>">Delete Post</button>
                         </form>
