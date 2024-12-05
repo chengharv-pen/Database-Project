@@ -170,7 +170,7 @@
                             if ($userLiked && !$userDisliked): ?>
                                 <!-- User has liked the post, so show "Remove Like" -->
                                 <div class="like-button">
-                                    <form action="./like-posts.php" method="POST">
+                                    <form action="./view-posts/like-posts.php" method="POST">
                                         <input type="hidden" name="post_id" value="<?= $post['PostID'] ?>">
                                         <button type="submit">Remove Like</button>
                                     </form>
@@ -178,20 +178,20 @@
                             <?php elseif (!$userLiked && !$userDisliked): ?>
                                 <!-- User hasn't liked or disliked the post, so show both "Like" and "Dislike" -->
                                 <div class="like-button">
-                                    <form action="./like-posts.php" method="POST">
+                                    <form action="./view-posts/like-posts.php" method="POST">
                                         <input type="hidden" name="post_id" value="<?= $post['PostID'] ?>">
                                         <button type="submit">Like</button>
                                     </form>
                                 </div>
                                 <div class="dislike-button">
-                                    <form action="dislike-posts.php" method="POST">
+                                    <form action="./view-posts/dislike-posts.php" method="POST">
                                         <input type="hidden" name="post_id" value="<?= $post['PostID'] ?>">
                                         <button type="submit">Dislike</button>
                                     </form>
                                 </div>
                             <?php elseif (!$userLiked && $userDisliked): ?>
                                 <!-- User has disliked the post, so show "Remove Dislike" -->
-                                <div class="dislike-button">
+                                <div class="./view-posts/dislike-button">
                                     <form action="dislike-posts.php" method="POST">
                                         <input type="hidden" name="post_id" value="<?= $post['PostID'] ?>">
                                         <button type="submit">Remove Dislike</button>
@@ -201,7 +201,7 @@
                     </div>
 
                     <p><strong>Comments:</strong> <?= $post['CommentsCount'] ?> | 
-                        <a href="inspect-single-post.php?post_id=<?= htmlspecialchars($post['PostID']) ?>">View Comments</a>
+                        <a href="./view-posts/inspect-single-post.php?post_id=<?= htmlspecialchars($post['PostID']) ?>">View Comments</a>
                     </p>
 
                     <?php if ($post['AuthorID'] === $memberID): ?>

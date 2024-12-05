@@ -57,7 +57,7 @@ Implement something similar to Discord's chat here? Only text, no pictures/video
 Organize by voting between multiple date/time/place suggested by group members O
 
 8 - Gift Exchange of ideas
-how???????????? ❌
+how???????????? ✅
 
 -------------------------- Project Intricacies -------------------------- 
 

@@ -94,7 +94,7 @@
                 <a class="" href="./events/display-events.php" target="content">Events</a>
             </div>
             <div class="tab">
-                <a class="" href="./gift-exchange/gift-exchange.php" target="content">Gift Exchange</a>
+                <a class="" href="./gift-exchange/create-gift-exchange.php" target="content">Gift Exchange</a>
             </div>
         </div>
     </header>
