@@ -36,23 +36,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../styles.css?<?php echo time(); ?>" rel="stylesheet"/>
+    <link href="./events.css?<?php echo time(); ?>" rel="stylesheet"/>
 </head>
 <body>
-    <h1>Add Voting Option</h1>
-    <form action="add-voting-options-events.php?event_id=<?php echo $eventId; ?>&group_id=<?php echo $groupId; ?>" method="POST">
-        <label for="option_date">Date:</label>
-        <input type="date" name="option_date" required><br><br>
+    <div class="vertical-event-wrapper">
+        <h1>Add Voting Option</h1>
+        <div class="event-groups">
+            <form action="add-voting-options-events.php?event_id=<?php echo $eventId; ?>&group_id=<?php echo $groupId; ?>" method="POST">
+                <label for="option_date">Date:</label>
+                <input type="date" name="option_date" required><br><br>
 
-        <label for="option_time">Time:</label>
-        <input type="time" name="option_time" required><br><br>
+                <label for="option_time">Time:</label>
+                <input type="time" name="option_time" required><br><br>
 
-        <label for="option_place">Place:</label>
-        <input type="text" name="option_place" required><br><br>
+                <label for="option_place">Place:</label>
+                <input type="text" name="option_place" required><br><br>
 
-        <label for="suggested_by_member">Is this suggested by a member?</label>
-        <input type="checkbox" name="suggested_by_member"><br><br>
+                <label for="suggested_by_member">Is this suggested by a member?</label>
+                <input type="checkbox" name="suggested_by_member"><br><br>
 
-        <button type="submit">Add Voting Option</button>
-    </form>
+                <button type="submit">Add Voting Option</button>
+            </form>
+        </div>
+    </div>
 </body>
 </html>

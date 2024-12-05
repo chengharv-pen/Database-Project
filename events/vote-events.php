@@ -54,60 +54,79 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../styles.css?<?php echo time(); ?>" rel="stylesheet"/>
+    <link href="./events.css?<?php echo time(); ?>" rel="stylesheet"/>
 </head>
 <body>
-    <h1><?php echo htmlspecialchars($event['EventTitle']); ?></h1>
-    <p><?php echo htmlspecialchars($event['EventDescription']); ?></p>
-    <p>Status: <?php echo htmlspecialchars($event['EventStatus']); ?></p>
+    <div class="vertical-event-wrapper">
+        <h1><?php echo htmlspecialchars($event['EventTitle']); ?></h1>
+        <div class="event-groups vote">
+            <p><?php echo htmlspecialchars($event['EventDescription']); ?></p>
+            <p>Status: <?php echo htmlspecialchars($event['EventStatus']); ?></p>
 
-    <h3>Vote on Date/Time/Place:</h3>
-    <form action="vote-events.php?event_id=<?php echo $eventId; ?>" method="POST">
-        <?php if (empty($options)): ?>
-            <p>No options available to vote on.</p>
-        <?php else: ?>
-            <?php foreach ($options as $option): ?>
-                <div class="event-option">
-                    <input type="radio" name="option_id" value="<?php echo $option['OptionID']; ?>" id="option-<?php echo $option['OptionID']; ?>" <?php echo $alreadyVoted ? 'disabled' : ''; ?>>
-                    <label for="option-<?php echo $option['OptionID']; ?>">
-                        <?php echo htmlspecialchars($option['OptionDate']); ?> | 
-                        <?php echo htmlspecialchars($option['OptionTime']); ?> | 
-                        <?php echo htmlspecialchars($option['OptionPlace']); ?>
-                        <?php echo $option['IsSuggestedByMember'] ? "(Suggested by a member)" : "(Default option)"; ?>
-                    </label>
-                </div>
-            <?php endforeach; ?>
+            <h3>Vote on Date/Time/Place (ONE TIME VOTE):</h3>
+            <form action="vote-events.php?event_id=<?php echo $eventId; ?>" method="POST">
+                <?php if (empty($options)): ?>
+                    <p>No options available to vote on.</p>
+                <?php else: ?>
+                    <?php foreach ($options as $option): ?>
+                        <div class="event-option">
+                            <input type="radio" name="option_id" value="<?php echo $option['OptionID']; ?>" id="option-<?php echo $option['OptionID']; ?>" <?php echo $alreadyVoted ? 'disabled' : ''; ?>>
+                            <label for="option-<?php echo $option['OptionID']; ?>">
+                                <?php echo htmlspecialchars($option['OptionDate']); ?> | 
+                                <?php echo htmlspecialchars($option['OptionTime']); ?> | 
+                                <?php echo htmlspecialchars($option['OptionPlace']); ?>
+                                <?php echo $option['IsSuggestedByMember'] ? "(Suggested by a member)" : "(Default option)"; ?>
+                            </label>
+                        </div>
+                    <?php endforeach; ?>
 
-            <?php if ($alreadyVoted): ?>
-                <p>You have already voted!</p>
-            <?php else: ?>
-                <button type="submit">Vote</button>
+                    <?php if ($alreadyVoted): ?>
+                        <br>
+                        <strong>You have already voted!</strong>
+                    <?php else: ?>
+                        <button type="submit">Vote</button>
+                    <?php endif; ?>
+                <?php endif; ?>
+            </form>
+
+            <?php if ($isAdmin): ?>
+                <ul>
+                    <br>
+                    <li>
+                        <a href="add-voting-options-events.php?event_id=<?php echo $eventId; ?>&group_id=<?php echo $groupId; ?>">Add Voting Options</a>
+                    </li>
+                </ul>
             <?php endif; ?>
-        <?php endif; ?>
-    </form>
+        </div>
+        
+        <div class="event-groups vote">
+            <?php if ($event['EventStatus'] == 'Scheduled'): ?>
+                <h3>Voting Results:</h3>
+                <?php
+                $stmt = $pdo->prepare("
+                    SELECT 
+                        CONCAT(
+                            IFNULL(DATE_FORMAT(eo.OptionDate, '%Y-%m-%d'), 'Unknown Date'), ' ',
+                            IFNULL(TIME_FORMAT(eo.OptionTime, '%H:%i'), 'Unknown Time'), ' @ ',
+                            IFNULL(eo.OptionPlace, 'Unknown Place')
+                        ) AS OptionDetails, 
+                        COUNT(ev.VoteID) AS VoteCount 
+                    FROM EventVotingOptions eo 
+                    LEFT JOIN EventVotes ev ON eo.OptionID = ev.OptionID 
+                    WHERE eo.EventID = ? 
+                    GROUP BY eo.OptionID 
+                    ORDER BY VoteCount DESC
+                ");
 
-    <?php if ($isAdmin): ?>
-        <br>
-        <a href="add-voting-options-events.php?event_id=<?php echo $eventId; ?>&group_id=<?php echo $groupId; ?>">Add Voting Options</a>
-    <?php endif; ?>
+                $stmt->execute([$eventId]);
+                $voteResults = $stmt->fetchAll();
 
-    <?php if ($event['EventStatus'] == 'Scheduled'): ?>
-        <h3>Voting Results:</h3>
-        <?php
-        $stmt = $pdo->prepare("
-            SELECT eo.OptionValue, COUNT(ev.VoteID) AS VoteCount 
-            FROM EventVotingOptions eo 
-            LEFT JOIN EventVotes ev ON eo.OptionID = ev.OptionID 
-            WHERE eo.EventID = ? GROUP BY eo.OptionID 
-            ORDER BY VoteCount DESC"
-        );
-
-        $stmt->execute([$eventId]);
-        $voteResults = $stmt->fetchAll();
-
-        foreach ($voteResults as $result) {
-            echo "<p>" . htmlspecialchars($result['OptionValue']) . " - Votes: " . $result['VoteCount'] . "</p>";
-        }
-        ?>
-    <?php endif; ?>
+                foreach ($voteResults as $result) {
+                    echo "<p>" . htmlspecialchars($result['OptionDetails']) . " - Votes: " . $result['VoteCount'] . "</p>";
+                }
+                ?>
+            <?php endif; ?>
+        </div>
+    </div>
 </body>
 </html>

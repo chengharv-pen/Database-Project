@@ -93,6 +93,8 @@
                 <button type="submit" name="senior-promotion" class="senior-promotion">Request Senior Promotion</button>
             <?php elseif($privilege === 'Junior' && $status['Status'] === 'denied'): ?>
                 <button type="submit" name="senior-promotion" class="senior-promotion">Request Senior Promotion</button>
+            <?php elseif($privilege !== 'Junior'): ?>
+                <!-- DISPLAY NOTHING -->
             <?php else: ?>
                 <strong> Pending Senior Promotion Request... </strong>
             <?php endif; ?>
@@ -105,35 +107,9 @@
         <br>
         <br>
         <a href="./delete-members.php">Want to delete your account?</a>
-    </div>
-
-    <div class="display-search-bar">
-        <h3> Filtered Search </h3>
-        <!-- Search for a Profile by Filters -->
-        <form action="./filtered-search-members.php" method="POST">
-            <!-- Interest Filter -->
-            <label for="interest">Interest:</label>
-            <input type="text" id="interest" name="interest" placeholder="Enter interest">
-                
-            <!-- Age Range Filter -->
-            <label for="min-age">Min Age (years):</label>
-            <input type="number" id="min-age" name="min_age" min="0" placeholder="Min Age"><br><br>
-                
-            <label for="max-age">Max Age (years):</label>
-            <input type="number" id="max-age" name="max_age" min="0" placeholder="Max Age"><br><br>
-                
-            <!-- Profession Filter -->
-            <label for="profession">Profession:</label>
-            <input type="text" id="profession" name="profession" placeholder="Enter profession">
-                
-            <!-- Region Filter -->
-            <label for="region">Region:</label>
-            <input type="text" id="region" name="region" placeholder="Enter region">
-                
-            <!-- Submit Button -->
-            <button type="submit" name="search-button" class="search-button">Search by Filters</button>
-        </form>
-    </div>
-    
+        <br>
+        <br>
+        <a href="./filtered-search-members.php">Filtered Search?</a>
+    </div>    
 </body>
 </html>

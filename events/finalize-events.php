@@ -100,49 +100,53 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../styles.css?<?php echo time(); ?>" rel="stylesheet"/>
-    <title>Finalize Event</title>
+    <link href="./events.css?<?php echo time(); ?>" rel="stylesheet"/>
 </head>
 <body>
-    <h1>Finalize Event</h1>
+    <div class="vertical-event-wrapper">
+        <h1>Finalize Event</h1>
 
-    <!-- Only a Group Admin should be able to access -->
-    <?php if ($isAdmin): ?>
-        <!-- Form to select an Event in the Group to finalize -->
-        <form id="eventForm" action="./finalize-events.php" method="GET">
-            <input type="hidden" name="group_id" value="<?php echo $groupId; ?>"> <!-- Hidden group_id field -->
-            <label for="event_id">Select Event to Finalize:</label>
-            <select name="event_id" id="event_id" onchange="this.form.submit()">
-                <option value="">--Select an Event--</option>
-                <?php foreach ($events as $event): ?>
-                    <option value="<?php echo $event['EventID']; ?>">
-                        <?php echo htmlspecialchars($event['EventTitle']); ?> - Status: <?php echo htmlspecialchars($event['EventStatus']); ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-        </form>
+        <!-- Only a Group Admin should be able to access -->
+        <?php if ($isAdmin): ?>
+            <div class="event-groups">
+                <!-- Form to select an Event in the Group to finalize -->
+                <form id="eventForm" action="./finalize-events.php" method="GET">
+                    <input type="hidden" name="group_id" value="<?php echo $groupId; ?>"> <!-- Hidden group_id field -->
+                    <label for="event_id">Select Event to Finalize:</label>
+                    <select name="event_id" id="event_id" onchange="this.form.submit()">
+                        <option value="">--Select an Event--</option>
+                        <?php foreach ($events as $event): ?>
+                            <option value="<?php echo $event['EventID']; ?>">
+                                <?php echo htmlspecialchars($event['EventTitle']); ?> - Status: <?php echo htmlspecialchars($event['EventStatus']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </form>
 
-        <?php if (isset($mostVotedOption)): ?>
-            <h2>Most Voted Option</h2>
-            <form id="finalizeForm" action="./finalize-events.php" method="POST">
-                <input type="hidden" name="group_id" value="<?php echo $groupId; ?>"> <!-- Hidden group_id field -->
-                <input type="hidden" name="event_id" value="<?php echo $eventId; ?>"> <!-- Hidden event_id field -->
-                <fieldset>
-                    <legend>Finalize Event</legend>
-                    <label for="final_date">Final Date:</label>
-                    <input type="text" id="final_date" name="final_date" value="<?php echo htmlspecialchars($mostVotedOption['OptionDate']); ?>" readonly>
+                <?php if (isset($mostVotedOption)): ?>
+                    <h2>Most Voted Option</h2>
+                    <form id="finalizeForm" action="./finalize-events.php" method="POST">
+                        <input type="hidden" name="group_id" value="<?php echo $groupId; ?>"> <!-- Hidden group_id field -->
+                        <input type="hidden" name="event_id" value="<?php echo $eventId; ?>"> <!-- Hidden event_id field -->
+                        <fieldset>
+                            <legend>Finalize Event</legend>
+                            <label for="final_date">Final Date:</label>
+                            <input type="text" id="final_date" name="final_date" value="<?php echo htmlspecialchars($mostVotedOption['OptionDate']); ?>" readonly>
 
-                    <label for="final_time">Final Time:</label>
-                    <input type="text" id="final_time" name="final_time" value="<?php echo htmlspecialchars($mostVotedOption['OptionTime']); ?>" readonly>
+                            <label for="final_time">Final Time:</label>
+                            <input type="text" id="final_time" name="final_time" value="<?php echo htmlspecialchars($mostVotedOption['OptionTime']); ?>" readonly>
 
-                    <label for="final_place">Final Place:</label>
-                    <input type="text" id="final_place" name="final_place" value="<?php echo htmlspecialchars($mostVotedOption['OptionPlace']); ?>" readonly>
+                            <label for="final_place">Final Place:</label>
+                            <input type="text" id="final_place" name="final_place" value="<?php echo htmlspecialchars($mostVotedOption['OptionPlace']); ?>" readonly>
 
-                    <button type="submit" onclick="return confirm('Are you sure you want to finalize this event?')">Finalize Event</button>
-                </fieldset>
-            </form>
+                            <button type="submit" onclick="return confirm('Are you sure you want to finalize this event?')">Finalize Event</button>
+                        </fieldset>
+                    </form>
+                <?php endif; ?>
+            </div>
+        <?php else: ?>
+            <p>You are not authorized to view this page.</p>
         <?php endif; ?>
-    <?php else: ?>
-        <p>You are not authorized to view this page.</p>
-    <?php endif; ?>
+    </div>
 </body>
 </html>

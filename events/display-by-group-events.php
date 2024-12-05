@@ -27,32 +27,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="../styles.css?<?php echo time(); ?>" rel="stylesheet"/>
+    <link href="./events.css?<?php echo time(); ?>" rel="stylesheet"/>
 </head>
 <body>
     <h1>Events for Group</h1>
 
-    <h2>Events</h2>
-    <ul>
-        <?php foreach ($events as $event): ?>
-            <li>
-                <a href="vote-events.php?event_id=<?php echo $event['EventID']; ?>&group_id=<?php echo $groupId; ?>">
-                    <?php echo htmlspecialchars($event['EventTitle']); ?> - Status: <?php echo htmlspecialchars($event['EventStatus']); ?>
-                </a>
-            </li>
-        <?php endforeach; ?>
-    </ul>
-    
-    <!-- If the member is an admin of the group, show additional links -->
-    <?php if ($isAdmin): ?>
-        <h3>Admin Options</h3>
-        <ul>
-            <li><a href="create-events.php?group_id=<?php echo $groupId; ?>">Create New Event</a></li>
-            <li><a href="finalize-events.php?group_id=<?php echo $groupId; ?>">Finalize Event</a></li>
-        </ul>
-    <?php endif; ?>
+    <div class="event-wrapper">
+        <div class="event-groups">
+            <h2>Events</h2>
+            <ul>
+                <?php foreach ($events as $event): ?>
+                    <li>
+                        <a href="vote-events.php?event_id=<?php echo $event['EventID']; ?>&group_id=<?php echo $groupId; ?>">
+                            <?php echo htmlspecialchars($event['EventTitle']); ?> - Status: <?php echo htmlspecialchars($event['EventStatus']); ?>
+                        </a>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
+        </div>
 
-    <!-- Link to choose another group -->
-    <br>
-    <a href="./display-events.php">Choose another Group?</a>
+        <div class="event-groups">
+            <!-- If the member is an admin of the group, show additional links -->
+            <?php if ($isAdmin): ?>
+                <h3>Admin Options</h3>
+                <ul>
+                    <li><a href="create-events.php?group_id=<?php echo $groupId; ?>">Create New Event</a></li>
+                    <li><a href="finalize-events.php?group_id=<?php echo $groupId; ?>">Finalize Event</a></li>
+
+                    <!-- Link to choose another group -->
+                    <li><a href="./display-events.php">Choose another Group?</a></li>
+                </ul>
+            <?php else: ?>
+                <ul>
+                    <!-- Link to choose another group -->
+                    <li><a href="./display-events.php">Choose another Group?</a></li>
+                </ul>
+            <?php endif; ?>
+        </div>
+    </div>
 </body>
 </html>

@@ -1,0 +1,141 @@
+/* General Reset */
+body, h1, h2, ul, li, p {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+/* Body Styling */
+body {
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+}
+
+/* Header Styling */
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #2a9d8f;
+}
+
+/* Event Wrapper */
+.event-wrapper {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin: 10px;
+}
+
+/* Vertical Event Wrapper */
+.vertical-event-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin: 10px;
+}
+
+/* Sidebar for Groups */
+.event-groups {
+    flex: 1;
+    min-width: 300px;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.event-groups h2 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: #264653;
+}
+
+.event-groups ul {
+    list-style-type: none;
+}
+
+.event-groups li {
+    margin: 10px 0;
+}
+
+.event-groups li a {
+    text-decoration: none;
+    color: #2a9d8f;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.event-groups li a:hover {
+    color: #e76f51;
+}
+
+/* Event Container */
+.event-container-2 {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 300px;
+}
+
+/* Individual Sections */
+.ongoing-events, .previous-events {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.ongoing-events h2, .previous-events h2 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    color: #264653;
+}
+
+/* Event List Styling */
+.ongoing-events ul, .previous-events ul {
+    list-style-type: none;
+}
+
+.ongoing-events li, .previous-events li {
+    background: #f4f4f9;
+    border-left: 4px solid #2a9d8f;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 4px;
+    transition: background 0.3s ease;
+}
+
+.ongoing-events li:hover, .previous-events li:hover {
+    background: #e9f5f2;
+}
+
+/* Event Details */
+.ongoing-events li strong, .previous-events li strong {
+    display: block;
+    font-size: 1.1rem;
+    color: #264653;
+    margin-bottom: 5px;
+}
+
+.ongoing-events li span, .previous-events li span {
+    font-size: 0.9rem;
+    color: #555;
+}
+
+/* Vote Styling */
+.vote {
+    text-align: center;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+    .event-wrapper {
+        flex-direction: column;
+    }
+
+    .event-container-2 {
+        flex-direction: column;
+    }
+}

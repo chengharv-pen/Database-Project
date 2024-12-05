@@ -54,7 +54,7 @@ Liking/Disliking Posts ✅
 Implement something similar to Discord's chat here? Only text, no pictures/videos for simplicity. ✅
 
 7 - Events
-Organize by voting between multiple date/time/place suggested by group members O
+Organize by voting between multiple date/time/place suggested by group members ✅
 
 8 - Gift Exchange of ideas
 how???????????? ✅
