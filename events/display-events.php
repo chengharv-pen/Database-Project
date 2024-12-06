@@ -5,38 +5,88 @@
     $stmt = $pdo->prepare("
         SELECT g.GroupID, g.GroupName 
         FROM GroupMembers gm 
-        JOIN Groups g ON gm.GroupID = g.GroupID 
+        JOIN `Groups` g ON gm.GroupID = g.GroupID 
         WHERE gm.MemberID = ?
     ");
     $stmt->execute([$memberID]);
     $groups = $stmt->fetchAll();
 
-    // Fetch ongoing events for user's groups
+    // Fetch ongoing events with most voted options (Event Date is now in EventVotingOptions)
     $ongoingStmt = $pdo->prepare("
-        SELECT e.EventID, e.EventTitle, e.EventDate, g.GroupName 
-        FROM Events e 
-        JOIN Groups g ON e.GroupID = g.GroupID 
-        WHERE e.EventStatus = 'Scheduled' AND e.EventDate > NOW() AND g.GroupID IN (
-            SELECT GroupID FROM GroupMembers WHERE MemberID = ?
+        WITH RankedVotes AS (
+            SELECT 
+                e.EventID, 
+                e.EventTitle, 
+                g.GroupName, 
+                ev.OptionDate, 
+                ev.OptionTime, 
+                ev.OptionPlace, 
+                COUNT(evote.VoteID) AS VoteCount,
+                ROW_NUMBER() OVER (PARTITION BY e.EventID ORDER BY COUNT(evote.VoteID) DESC, ev.OptionDate ASC) AS rn
+            FROM Events e
+            JOIN `Groups` g ON e.GroupID = g.GroupID
+            LEFT JOIN EventVotingOptions ev ON e.EventID = ev.EventID
+            LEFT JOIN EventVotes evote ON ev.OptionID = evote.OptionID
+            JOIN GroupMembers gm ON gm.GroupID = e.GroupID
+            WHERE e.EventStatus = 'Scheduled'
+            AND ev.OptionDate > NOW()
+            AND gm.MemberID = 1
+            GROUP BY e.EventID, ev.OptionID
         )
-        ORDER BY e.EventDate ASC
+        SELECT 
+            EventID, 
+            EventTitle, 
+            GroupName, 
+            OptionDate, 
+            OptionTime, 
+            OptionPlace, 
+            VoteCount
+        FROM RankedVotes
+        WHERE rn = 1;
     ");
-    $ongoingStmt->execute([$memberID]);
+
+    $ongoingStmt->bindParam(':memberID', $memberID, PDO::PARAM_INT);
+    $ongoingStmt->execute();
     $ongoingEvents = $ongoingStmt->fetchAll();
 
-    // Fetch previous events for user's groups
+    // Fetch previous events with most voted options (Event Date is now in EventVotingOptions)
     $previousStmt = $pdo->prepare("
-        SELECT e.EventID, e.EventTitle, e.EventDate, g.GroupName 
-        FROM Events e 
-        JOIN Groups g ON e.GroupID = g.GroupID 
-        WHERE e.EventStatus = 'Scheduled' AND e.EventDate <= NOW() AND g.GroupID IN (
-            SELECT GroupID FROM GroupMembers WHERE MemberID = ?
+        WITH RankedVotes AS (
+            SELECT 
+                e.EventID, 
+                e.EventTitle, 
+                g.GroupName, 
+                ev.OptionDate, 
+                ev.OptionTime, 
+                ev.OptionPlace, 
+                COUNT(evote.VoteID) AS VoteCount,
+                ROW_NUMBER() OVER (PARTITION BY e.EventID ORDER BY COUNT(evote.VoteID) DESC, ev.OptionDate ASC) AS rn
+            FROM Events e
+            JOIN `Groups` g ON e.GroupID = g.GroupID
+            LEFT JOIN EventVotingOptions ev ON e.EventID = ev.EventID
+            LEFT JOIN EventVotes evote ON ev.OptionID = evote.OptionID
+            JOIN GroupMembers gm ON gm.GroupID = e.GroupID
+            WHERE e.EventStatus = 'Scheduled'
+            AND ev.OptionDate <= NOW()
+            AND gm.MemberID = 1
+            GROUP BY e.EventID, ev.OptionID
         )
-        ORDER BY e.EventDate DESC
+        SELECT 
+            EventID, 
+            EventTitle, 
+            GroupName, 
+            OptionDate, 
+            OptionTime, 
+            OptionPlace, 
+            VoteCount
+        FROM RankedVotes
+        WHERE rn = 1;
     ");
-    $previousStmt->execute([$memberID]);
+    $previousStmt->bindParam(':memberID', $memberID, PDO::PARAM_INT);
+    $previousStmt->execute();
     $previousEvents = $previousStmt->fetchAll();
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -66,7 +116,7 @@
         
         <div class="event-container-2">
             <div class="ongoing-events">
-                <h2>Ongoing Events</h2>
+                <h2>Upcoming Events</h2>
                 <?php if (!empty($ongoingEvents)): ?>
                     <ul>
                         <?php foreach ($ongoingEvents as $event): ?>
@@ -75,12 +125,23 @@
                                 <br>
                                 <span>Group: <?php echo htmlspecialchars($event['GroupName']); ?></span>
                                 <br>
-                                <span>Date: <?php echo htmlspecialchars($event['EventDate']); ?></span>
+                                <br>
+                                <?php if ($event['OptionDate'] && $event['OptionTime'] && $event['OptionPlace']): ?>
+                                    <span>Most Voted Option:</span>
+                                    <br>
+                                    <span>Date: <?php echo htmlspecialchars($event['OptionDate']); ?></span>
+                                    <br>
+                                    <span>Time: <?php echo htmlspecialchars($event['OptionTime']); ?></span>
+                                    <br>
+                                    <span>Place: <?php echo htmlspecialchars($event['OptionPlace']); ?></span>
+                                <?php else: ?>
+                                    <span>No voting options available yet.</span>
+                                <?php endif; ?>
                             </li>
                         <?php endforeach; ?>
                     </ul>
                 <?php else: ?>
-                    <p>No ongoing events at the moment.</p>
+                    <p>No upcoming events at the moment.</p>
                 <?php endif; ?>
             </div>
 
@@ -94,7 +155,18 @@
                                 <br>
                                 <span>Group: <?php echo htmlspecialchars($event['GroupName']); ?></span>
                                 <br>
-                                <span>Date: <?php echo htmlspecialchars($event['EventDate']); ?></span>
+                                <br>
+                                <?php if ($event['OptionDate'] && $event['OptionTime'] && $event['OptionPlace']): ?>
+                                    <span>Most Voted Option:</span>
+                                    <br>
+                                    <span>Date: <?php echo htmlspecialchars($event['OptionDate']); ?></span>
+                                    <br>
+                                    <span>Time: <?php echo htmlspecialchars($event['OptionTime']); ?></span>
+                                    <br>
+                                    <span>Place: <?php echo htmlspecialchars($event['OptionPlace']); ?></span>
+                                <?php else: ?>
+                                    <span>No voting options available.</span>
+                                <?php endif; ?>
                             </li>
                         <?php endforeach; ?>
                     </ul>
@@ -106,4 +178,5 @@
     </div>
 </body>
 </html>
+
 

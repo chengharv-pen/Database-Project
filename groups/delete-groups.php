@@ -22,7 +22,7 @@
             die("Group not found or you are not a member of this group.");
         }
 
-    } elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete_group'])) {
+    } elseif ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Handle deletion
         if (!isset($_POST['GroupID']) || empty($_POST['GroupID'])) {
@@ -80,6 +80,8 @@
             
         <!-- Form to trigger account deletion -->
         <form method="POST">
+            <!-- Hidden input to pass GroupID -->
+            <input type="hidden" name="GroupID" value="<?php echo htmlspecialchars($groupID); ?>">
             <button type="submit" name="delete_group" class="delete-button">Delete the Group <?php echo htmlspecialchars($group['GroupName']); ?></button>
         </form>
     <?php else: ?>

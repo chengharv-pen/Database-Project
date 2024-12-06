@@ -6,7 +6,7 @@
     $giftExchangeIDSelected = $_POST['gift_exchange_id'] ?? null;
 
     // Fetch available groups
-    $groups = $pdo->query("SELECT GroupID, GroupName FROM Groups")->fetchAll(PDO::FETCH_ASSOC);
+    $groups = $pdo->query("SELECT GroupID, GroupName FROM `Groups`")->fetchAll(PDO::FETCH_ASSOC);
 
     // Fetch gift exchanges for the selected group
     if ($groupID) {
@@ -118,4 +118,3 @@
     </div>
 </body>
 </html>
-

@@ -21,7 +21,7 @@
         ) VALUES (
             :memberID,
             :groupName,
-            CURDATE(),
+            NOW(),
             :groupType,
             :region,
             :interestCategory
@@ -53,7 +53,7 @@
                     :groupID,
                     :memberID,
                     'Admin',
-                    CURDATE()
+                    NOW()
                 )";
 
                 // Prepare the statement for inserting the creator into GroupMembers

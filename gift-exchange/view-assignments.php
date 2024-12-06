@@ -5,7 +5,7 @@
     $giftExchangeID = $_GET['gift_exchange_id'] ?? null;
 
     // Fetch all groups for the dropdown
-    $groupsStmt = $pdo->query("SELECT GroupID, GroupName FROM Groups");
+    $groupsStmt = $pdo->query("SELECT GroupID, GroupName FROM `Groups`");
     $groups = $groupsStmt->fetchAll(PDO::FETCH_ASSOC);
 
     // If a group is selected, fetch the gift exchanges associated with that group

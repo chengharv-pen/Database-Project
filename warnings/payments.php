@@ -1,7 +1,7 @@
 <?php
     include '../db-connect.php';
 
-    // Check the Member's Account type. If it is Business, then show a link to payments.php
+    // Check the Member's Account type. If it is Business, then fetch payments for the logged-in user
     try {
         $stmt = $pdo->prepare("
             SELECT AccountType FROM Members WHERE MemberID = :memberID
@@ -10,17 +10,15 @@
         $accountType = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($accountType['AccountType'] === 'Business') {
-            echo "<a href='./warnings/payments.php'>Payments</a>";
+            // Fetch payments for the logged-in user
+            $stmt = $pdo->prepare("SELECT PaymentID, Amount, PaymentDate, Description FROM Payments WHERE MemberID = :member_id");
+            $stmt->execute([':member_id' => $memberID]);
+            $payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
     } catch (PDOException $e) {
         die("Error fetching posts or comments: " . $e->getMessage());
     }
-
-    // Fetch payments for the logged-in user
-    $stmt = $pdo->prepare("SELECT PaymentID, Amount, PaymentDate, Description FROM Payments WHERE MemberID = :member_id");
-    $stmt->execute([':member_id' => $memberID]);
-    $payments = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Handle the pay button
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['payment_id'])) {

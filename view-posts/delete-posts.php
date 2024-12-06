@@ -12,7 +12,7 @@
 
         // Execute the query
         if ($stmt->execute()) {
-            header("Location: ./view-posts.php?message=Post deleted successfully!");
+            header("Location: ../home.php");
             exit;
 
         } else {

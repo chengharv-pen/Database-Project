@@ -8,16 +8,15 @@
         $groupId = $_POST['group_id'];
         $eventTitle = $_POST['event_title'];
         $eventDescription = $_POST['event_description'];
-        $eventDate = $_POST['event_date'];
 
         $eventCreatorId = $memberID;  // Event creator is the logged-in user
 
         // Insert event into database
         $stmt = $pdo->prepare("
-            INSERT INTO Events (GroupID, EventTitle, EventDescription, EventCreatorID, EventDate) 
-            VALUES (?, ?, ?, ?, ?)"
+            INSERT INTO Events (GroupID, EventTitle, EventDescription, EventCreatorID) 
+            VALUES (?, ?, ?, ?)"
         );
-        $stmt->execute([$groupId, $eventTitle, $eventDescription, $eventCreatorId, $eventDate]);
+        $stmt->execute([$groupId, $eventTitle, $eventDescription, $eventCreatorId]);
 
         // Redirect to event voting page
         header("Location: ./display-events.php");
@@ -55,7 +54,7 @@
                         try {
                             $stmt = $pdo->prepare("
                                 SELECT GroupID, GroupName 
-                                FROM Groups 
+                                FROM `Groups` 
                                 WHERE OwnerID = ? AND GroupID = ?
                             ");
                             $stmt->execute([$userId, $groupId]);
@@ -78,9 +77,6 @@
 
                 <label for="event_description">Event Description:</label><br>
                 <textarea name="event_description" required></textarea><br><br>
-
-                <label for="event_date">Event Date:</label>
-                <input type="datetime-local" name="event_date" required><br><br>
 
                 <button type="submit">Create Event</button>
             </form>

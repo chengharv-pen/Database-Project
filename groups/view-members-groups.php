@@ -217,9 +217,9 @@
                     <div class="body-item"><?php echo htmlspecialchars($member['Role']); ?></div>
 
                     <!-- Display form only for other members -->
-                    <!-- Case 1: Other member, but not group admin -->
-                    <?php if ($member['MemberID'] !== $_SESSION['MemberID'] && !$isAdmin): ?>
+                    <?php if ($member['MemberID'] !== $_SESSION['MemberID']): ?>
                         <div class="body-item">
+                        <?php if ($isAdmin): ?>
                             <form method="POST" action="">
                                 <input type="hidden" name="GroupID" value="<?php echo htmlspecialchars($groupID); ?>">
                                 <input type="hidden" name="MemberID" value="<?php echo htmlspecialchars($member['MemberID']); ?>">
@@ -231,28 +231,15 @@
                                 </select>
                                 <button type="submit">Update</button>
                             </form>
-                        </div>
-                    <!-- Case 2: Other member, but group admin -->
-                    <?php elseif ($member['MemberID'] !== $_SESSION['MemberID'] && $isAdmin): ?>
-                        <div class="body-item">
-                            <form method="POST" action="">
-                                <input type="hidden" name="GroupID" value="<?php echo htmlspecialchars($groupID); ?>">
-                                <input type="hidden" name="MemberID" value="<?php echo htmlspecialchars($member['MemberID']); ?>">
-                                
-                                <label for="Role_<?php echo htmlspecialchars($member['MemberID']); ?>">Role:</label>
-                                <select name="Role" id="Role_<?php echo htmlspecialchars($member['MemberID']); ?>">
-                                    <option value="Member" <?php echo $member['Role'] === 'Member' ? 'selected' : ''; ?>>Member</option>
-                                    <option value="Admin" <?php echo $member['Role'] === 'Admin' ? 'selected' : ''; ?>>Admin</option>
-                                </select>
-                                <button type="submit">Update</button>
-                            </form>
+                        <?php else: ?>
+                            <p>No action</p>
+                        <?php endif; ?>
                         </div>
                     <?php else: ?>
                         <div class="body-item">
                             <p>No action</p>
                         </div>
                     <?php endif; ?>
-
                     
                     <!-- Display a remove member button only for admins -->
                     <div class="body-item">

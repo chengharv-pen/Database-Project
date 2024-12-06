@@ -30,9 +30,23 @@
             }
         }
 
+        // Begin a transaction (Ensures that both comment deletion and comments count decrement happen atomically.)
+        $pdo->beginTransaction();
+
         // Delete the comment from the database
         $deleteStmt = $pdo->prepare("DELETE FROM Comments WHERE CommentID = :commentID");
         $deleteStmt->execute([':commentID' => $commentID]);
+
+        // Decrement the CommentsCount in the Posts table
+        $updateStmt = $pdo->prepare("
+            UPDATE Posts 
+            SET CommentsCount = CommentsCount - 1 
+            WHERE PostID = :postID AND CommentsCount > 0
+        ");
+        $updateStmt->execute([':postID' => $comment['PostID']]);
+
+        // Commit the transaction
+        $pdo->commit();
 
         // Redirect back to the post page with a success message
         header("Location: inspect-single-post.php?post_id=" . $comment['PostID'] . "&message=Comment deleted successfully.");
@@ -42,3 +56,4 @@
         die("Error deleting comment: " . $e->getMessage());
     }
 ?>
+

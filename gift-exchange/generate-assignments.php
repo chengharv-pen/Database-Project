@@ -5,7 +5,7 @@
     $giftExchangeID = $_GET['gift_exchange_id'] ?? null;
 
     // Fetch all groups for the dropdown
-    $groupsStmt = $pdo->query("SELECT GroupID, GroupName FROM Groups");
+    $groupsStmt = $pdo->query("SELECT GroupID, GroupName FROM `Groups`");
     $groups = $groupsStmt->fetchAll(PDO::FETCH_ASSOC);
 
     // If a group is selected, fetch the gift exchanges associated with that group
@@ -28,7 +28,7 @@
                     // Before proceeding, set the status of the Gift Exchange to 'Ongoing'
                         $updateGiftExchangeStatusStmt = $pdo->prepare("
                         UPDATE GiftExchange
-                        SET ExchangeStatus = 'Ongoing' 
+                        SET Status = 'Ongoing' 
                         WHERE GiftExchangeID = :gift_exchange_id
                     ");
                     $updateGiftExchangeStatusStmt->execute([':gift_exchange_id' => $giftExchangeID]);

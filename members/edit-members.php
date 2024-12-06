@@ -146,6 +146,7 @@
         <button type="submit">Submit Profile Changes</button>
     </form>
 
+    </br>
     <a href="./display-members.php">Display Your Profile?</a>
 </body>
 </html>

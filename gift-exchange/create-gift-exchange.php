@@ -45,7 +45,7 @@
                 <label for="group_id">Group:</label>
                 <select name="group_id" id="group_id" required>
                     <?php
-                        $groups = $pdo->query("SELECT GroupID, GroupName FROM Groups")->fetchAll(PDO::FETCH_ASSOC);
+                        $groups = $pdo->query("SELECT GroupID, GroupName FROM `Groups`")->fetchAll(PDO::FETCH_ASSOC);
                         foreach ($groups as $group) {
                             echo "<option value='{$group['GroupID']}'>{$group['GroupName']}</option>";
                         }

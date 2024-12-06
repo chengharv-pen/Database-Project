@@ -56,36 +56,52 @@
     try {
         // Start with the base query
         $query = "
-            SELECT p.PostID, p.AuthorID, p.Content, p.PostDate, 
-                (SELECT COUNT(*) FROM PostLikes pl WHERE pl.PostID = p.PostID) AS Likes,
-                (SELECT COUNT(*) FROM PostDislikes pd WHERE pd.PostID = p.PostID) AS Dislikes, 
-                p.CommentsCount, p.VisibilitySettings, m.MediaType, m.MediaURL
-            FROM Posts p
-            LEFT JOIN PostMedia m ON p.PostID = m.PostID
-            LEFT JOIN BlockedMembers b ON p.AuthorID = b.BlockedID AND b.BlockerID = :currentUserID
-            WHERE b.BlockedID IS NULL 
-                AND (p.AuthorID = :memberID OR p.AuthorID <> :memberID)
-                OR p.VisibilitySettings = 'Private'
-                AND (
-                        p.authorID = :currentUserID 
-                        OR EXISTS (
-                            SELECT 1 
-                            FROM Relationships r 
-                            WHERE 
-                                ((r.SenderMemberID = p.AuthorID AND r.ReceiverMemberID = :currentUserID)
-                                OR (r.SenderMemberID = :currentUserID AND r.ReceiverMemberID = p.AuthorID))
-                                AND r.Status = 'Active'
-                        )
-                    )
-                OR p.VisibilitySettings = 'Group'
-                    AND EXISTS (
+        SELECT 
+            p.PostID, 
+            p.AuthorID, 
+            p.Content, 
+            p.PostDate, 
+            (SELECT COUNT(*) FROM PostLikes pl WHERE pl.PostID = p.PostID) AS Likes,
+            (SELECT COUNT(*) FROM PostDislikes pd WHERE pd.PostID = p.PostID) AS Dislikes,
+            p.CommentsCount, 
+            p.VisibilitySettings, 
+            m.MediaType, 
+            m.MediaURL
+        FROM 
+            Posts p
+        LEFT JOIN 
+            PostMedia m ON p.PostID = m.PostID
+        LEFT JOIN 
+            BlockedMembers b ON p.AuthorID = b.BlockedID AND b.BlockerID = :currentUserID
+        WHERE 
+            b.BlockedID IS NULL 
+            AND (
+                -- Include the member's posts
+                p.AuthorID = :memberID 
+
+                -- Include private posts if the current user has a relationship with the author
+                OR (p.VisibilitySettings = 'Private' AND (
+                    p.AuthorID = :currentUserID 
+                    OR EXISTS (
                         SELECT 1 
-                        FROM PostGroups pg
-                        JOIN GroupMembers gm ON pg.GroupID = gm.GroupID
-                        WHERE pg.PostID = p.PostID AND gm.MemberID = :currentUserID
+                        FROM Relationships r
+                        WHERE 
+                            ((r.SenderMemberID = p.AuthorID AND r.ReceiverMemberID = :currentUserID)
+                            OR (r.SenderMemberID = :currentUserID AND r.ReceiverMemberID = p.AuthorID))
+                            AND r.Status = 'Active'
                     )
-                OR p.VisibilitySettings = :visibility
-                ORDER BY Likes DESC, p.PostDate
+                ))
+
+                -- Include group posts the current user has access to
+                OR (p.VisibilitySettings = 'Group' AND EXISTS (
+                    SELECT 1 
+                    FROM PostGroups pg
+                    JOIN GroupMembers gm ON pg.GroupID = gm.GroupID
+                    WHERE pg.PostID = p.PostID AND gm.MemberID = :currentUserID
+                ))
+            )
+        ORDER BY 
+            Likes DESC, p.PostDate DESC;
         ";
 
         // Add filters to the query
@@ -231,7 +247,7 @@
                         Edit Post
                         </button>
                         <p>---------------------------------------------</p>
-                        <form action="./delete-posts.php" method="GET">
+                        <form action="./view-posts/delete-posts.php" method="GET">
                             <button type="submit" class="delete-post" name="DeletePostID" value="<?= $post['PostID'] ?>">Delete Post</button>
                         </form>
                     <?php endif; ?>

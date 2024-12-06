@@ -80,9 +80,9 @@
 
             $stmt = $pdo->prepare("
                 UPDATE Events 
-                SET EventDate = ?, EventStatus = 'Scheduled' 
+                SET EventStatus = 'Scheduled' 
                 WHERE EventID = ?");
-            $stmt->execute([$finalDate, $eventId]);
+            $stmt->execute([$eventId]);
 
             echo "Event has been finalized!";
             exit;

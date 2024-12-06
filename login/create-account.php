@@ -3,10 +3,10 @@
     session_start();
 
     // Database connection
-    $host = "localhost"; // Change if using a different host
-    $dbname = "db-schema2";
-    $username = "root";
-    $password = "";
+    $host = "npc353.encs.concordia.ca"; // Change if using a different host
+    $dbname = "npc353_2";
+    $username = "npc353_2";
+    $password = "WrestFrugallyErrant43";
 
     // Initialize feedback variable
     $feedback = "";
@@ -49,6 +49,7 @@
                         DateJoined,
                         Privilege,
                         AccountType,
+                        Status,
                         NeedsPasswordChange,
                         NeedsUsernameChange
                     ) VALUES (
@@ -63,6 +64,7 @@
                         CURDATE(),
                         'Junior',
                         :accountType,
+                        'Inactive',
                         FALSE,
                         FALSE
                     )";

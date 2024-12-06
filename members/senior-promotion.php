@@ -23,8 +23,6 @@
                 $statement->bindParam(':memberID', $memberID, PDO::PARAM_INT);
                 $statement->execute();
 
-                echo "Your previously denied request has been re-submitted and is now pending approval.";
-
             } elseif (!$existingRequest) {
                 // No existing request, create a new pending request
                 $sql = "INSERT INTO PromotionRequests (MemberID, Status) VALUES (:memberID, 'pending')";
@@ -32,9 +30,6 @@
                 $statement->bindParam(':memberID', $memberID, PDO::PARAM_INT);
                 $statement->execute();
 
-                echo "Your promotion request has been submitted successfully. It is pending approval.";
-            } else {
-                echo "You already have a pending or approved promotion request.";
             }
 
             // Redirect after processing

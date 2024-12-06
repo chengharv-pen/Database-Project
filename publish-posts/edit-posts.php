@@ -122,6 +122,19 @@
             die("Error updating post: " . $e->getMessage());
         }
     }
+
+    // Fetch groups where the user is an admin
+    $stmt = $pdo->prepare("
+        SELECT g.GroupID, g.GroupName 
+        FROM `Groups` g
+        INNER JOIN `GroupMembers` gm ON g.GroupID = gm.GroupID
+        WHERE gm.MemberID = :memberID AND gm.Role = 'Admin'
+    ");
+    $stmt->bindParam(':memberID', $memberID, PDO::PARAM_INT);
+    $stmt->execute();
+
+    // Fetch all admin groups
+    $adminGroups = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -148,13 +161,12 @@
         <div id="groupSelection" style="display: <?= $post['VisibilitySettings'] === 'Group' ? 'block' : 'none' ?>;">
             <label for="groups">Select Groups:</label>
             <select name="groups[]" id="groups" multiple>
-                <?php
-                $stmt = $pdo->query("SELECT GroupID, GroupName FROM Groups");
-                while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-                    $selected = in_array($row['GroupID'], $groups) ? 'selected' : '';
-                    echo "<option value='{$row['GroupID']}' $selected>{$row['GroupName']}</option>";
-                }
-                ?>
+                <!-- Populate dynamically with groups where the user is an admin -->
+                <?php foreach ($adminGroups as $group): ?>
+                    <option value="<?php echo htmlspecialchars($group['GroupID']); ?>">
+                        <?php echo htmlspecialchars($group['GroupName']); ?>
+                    </option>
+                <?php endforeach; ?>
             </select><br><br>
         </div>
 

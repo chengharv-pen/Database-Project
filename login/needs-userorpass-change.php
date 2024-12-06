@@ -15,10 +15,10 @@
         $newPassword = $_POST['password'] ?? '';
 
         // Database connection
-        $host = "localhost";
-        $dbname = "db-schema2";
-        $username = "root";
-        $password = "";
+        $host = "npc353.encs.concordia.ca"; // Change if using a different host
+        $dbname = "npc353_2";
+        $username = "npc353_2";
+        $password = "WrestFrugallyErrant43";
 
         try {
             $pdo = new PDO("mysql:host=$host; dbname=$dbname", $username, $password);
@@ -42,8 +42,8 @@
                 $stmt->execute();
             }
 
-            // Redirect back to the home page after updating
-            header("Location: ../index.php");
+            // Logout after updating
+            header("Location: ./logout.php");
             exit();
         } catch (PDOException $e) {
             die("Database error: " . $e->getMessage());

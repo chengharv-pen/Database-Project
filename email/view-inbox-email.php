@@ -1,34 +1,34 @@
 <?php
-include '../db-connect.php';
+    include '../db-connect.php';
 
-if (isset($_GET['emailID'])) {
-    $emailID = $_GET['emailID'];
+    if (isset($_GET['emailID'])) {
+        $emailID = $_GET['emailID'];
 
-    // Fetch the email details
-    $stmt = $pdo->prepare("SELECT * FROM Email WHERE EmailID = :emailID");
-    $stmt->bindParam(':emailID', $emailID, PDO::PARAM_INT);
-    $stmt->execute();
-    $email = $stmt->fetch(PDO::FETCH_ASSOC);
+        // Fetch the email details
+        $stmt = $pdo->prepare("SELECT * FROM Email WHERE EmailID = :emailID");
+        $stmt->bindParam(':emailID', $emailID, PDO::PARAM_INT);
+        $stmt->execute();
+        $email = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($email) {
-        // Update ReadStatus to 1 (mark as read)
-        $updateStmt = $pdo->prepare("UPDATE Email SET ReadStatus = 1 WHERE EmailID = :emailID");
-        $updateStmt->bindParam(':emailID', $emailID, PDO::PARAM_INT);
-        $updateStmt->execute();
+        if ($email) {
+            // Update ReadStatus to 1 (mark as read)
+            $updateStmt = $pdo->prepare("UPDATE Email SET ReadStatus = 1 WHERE EmailID = :emailID");
+            $updateStmt->bindParam(':emailID', $emailID, PDO::PARAM_INT);
+            $updateStmt->execute();
 
-        // Fetch the SenderID's username
-        $usernameStmt = $pdo->prepare("SELECT Username FROM Members WHERE MemberID = :senderID");
-        $usernameStmt->bindParam(':senderID', $email['SenderID'], PDO::PARAM_INT);
-        $usernameStmt->execute();
-        $username = $usernameStmt->fetch(PDO::FETCH_ASSOC);
+            // Fetch the SenderID's username
+            $usernameStmt = $pdo->prepare("SELECT Username FROM Members WHERE MemberID = :senderID");
+            $usernameStmt->bindParam(':senderID', $email['SenderID'], PDO::PARAM_INT);
+            $usernameStmt->execute();
+            $username = $usernameStmt->fetch(PDO::FETCH_ASSOC);
+        } else {
+            echo "Email not found.";
+            exit;
+        }
     } else {
-        echo "Email not found.";
+        echo "No email ID provided.";
         exit;
     }
-} else {
-    echo "No email ID provided.";
-    exit;
-}
 ?>
 
 <!DOCTYPE html>
