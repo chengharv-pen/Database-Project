@@ -1,4 +1,11 @@
 <?php
+
+    //
+    //  Written for: Bipin C. Desai
+    //  Class: COMP353 / Fall 2024 / Section F  
+    //  Author: Chengharv Pen (40279890)
+    //
+    
     // Fetch the comments for this post
     $commentStmt = $pdo->prepare("
         SELECT c.CommentID, c.AuthorID, c.Content, c.CreationDate 

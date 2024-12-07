@@ -1,3 +1,9 @@
+//
+//  Written for: Bipin C. Desai
+//  Class: COMP353 / Fall 2024 / Section F  
+//  Author: Chengharv Pen (40279890)
+//
+
 ✅ >>> Done
 O >>> Partially done
 ❌ >>> Not done
@@ -96,31 +102,7 @@ A Fine should send a notification ❌
 4 - Plebiscite System (this is definitely not being implemented due to time constraints)
 I have no clue how to implement this ❌
 
-To help with implementing these, I propose these tables...
-
--- Create Plebiscite relation
-CREATE TABLE Plebiscite (
-	PlebisciteID INT PRIMARY KEY AUTO_INCREMENT,
-	InitiatorID INT NOT NULL, -- The member who initiated the plebiscite
-	TargetMemberID INT NOT NULL, -- The non-person member being voted out
-	Reason TEXT, -- Reason for the vote
-	StartDate DATETIME DEFAULT CURRENT_TIMESTAMP, -- When the plebiscite started
-	EndDate DATETIME, -- When the plebiscite ended (if applicable)
-	Status ENUM('Pending', 'Ongoing', 'Completed', 'Cancelled') DEFAULT 'Pending', -- Status of the plebiscite
-	FOREIGN KEY (InitiatorID) REFERENCES Members(MemberID) ON DELETE CASCADE,
-	FOREIGN KEY (TargetMemberID) REFERENCES Members(MemberID) ON DELETE CASCADE
-);
-
--- Create PlebisciteVotes relation
-CREATE TABLE PlebisciteVotes (
-	VoteID INT PRIMARY KEY AUTO_INCREMENT,
-	PlebisciteID INT NOT NULL, -- The plebiscite vote being cast
-	MemberID INT NOT NULL, -- The member who is voting
-	Vote ENUM('Yes', 'No') NOT NULL, -- Vote on the plebiscite (Yes or No)
-	VoteDate DATETIME DEFAULT CURRENT_TIMESTAMP, -- When the vote was cast
-	FOREIGN KEY (PlebisciteID) REFERENCES Plebiscite(PlebisciteID) ON DELETE CASCADE,
-	FOREIGN KEY (MemberID) REFERENCES Members(MemberID) ON DELETE CASCADE
-);
+To help with implementing this, I propose this relation...
 
 --  Create Notifications Relation
 CREATE TABLE Notifications (

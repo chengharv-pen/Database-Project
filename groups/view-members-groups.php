@@ -1,4 +1,11 @@
 <?php
+
+    //
+    //  Written for: Bipin C. Desai
+    //  Class: COMP353 / Fall 2024 / Section F  
+    //  Author: Chengharv Pen (40279890)
+    //
+
     include '../db-connect.php';
 
     // This is easily refactorable, but I do not have the time anymore.

@@ -1,4 +1,11 @@
 <?php
+
+    //
+    //  Written for: Bipin C. Desai
+    //  Class: COMP353 / Fall 2024 / Section F  
+    //  Author: Chengharv Pen (40279890)
+    //
+    
     // inspect-single-post.php
     include '../db-connect.php';
 

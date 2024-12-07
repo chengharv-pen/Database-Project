@@ -1,4 +1,11 @@
 <?php
+
+    //
+    //  Written for: Bipin C. Desai
+    //  Class: COMP353 / Fall 2024 / Section F  
+    //  Author: Chengharv Pen (40279890)
+    //
+    
     session_start();
 
     // Check if EndDate is set in the session

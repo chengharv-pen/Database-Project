@@ -1,4 +1,11 @@
 <?php
+
+    //
+    //  Written for: Bipin C. Desai
+    //  Class: COMP353 / Fall 2024 / Section F  
+    //  Author: Chengharv Pen (40279890)
+    //
+    
     include '../db-connect.php';
 
     $eventId = $_GET['event_id'];  // Get the event ID from the URL
