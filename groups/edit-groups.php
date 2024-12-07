@@ -114,20 +114,25 @@
                 die("Invalid join request or no MemberID found.");
             }
     
-            $memberID = $result['MemberID'];
+            $requesterMemberID = $result['MemberID'];
     
             // Update the status of the join request
             $status = ($action === 'approve') ? 'Approved' : 'Rejected';
-            $stmt = $pdo->prepare("UPDATE GroupJoinRequests SET Status = :status WHERE RequestID = :requestID");
+            $stmt = $pdo->prepare("
+                UPDATE GroupJoinRequests 
+                SET Status = :status, ReviewedBy = :memberID, ReviewDate = (CURDATE()), ReviewComments = 'Sample Text' 
+                WHERE RequestID = :requestID
+            ");
             $stmt->bindParam(':status', $status, PDO::PARAM_STR);
             $stmt->bindParam(':requestID', $requestID, PDO::PARAM_INT);
+            $stmt->bindParam(':memberID', $memberID, PDO::PARAM_INT);
             $stmt->execute();
     
             // If approved, add member to GroupMembers
             if ($status === 'Approved') {
                 $stmt = $pdo->prepare("INSERT INTO GroupMembers (GroupID, MemberID, Role, DateAdded) VALUES (:groupID, :memberID, 'Member', CURRENT_DATE)");
                 $stmt->bindParam(':groupID', $groupID, PDO::PARAM_INT);
-                $stmt->bindParam(':memberID', $memberID, PDO::PARAM_INT);
+                $stmt->bindParam(':memberID', $requesterMemberID, PDO::PARAM_INT);
 
                 if ($stmt->execute()) {
                     $feedback = "Member approved and added to Group!!!";

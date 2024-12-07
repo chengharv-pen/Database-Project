@@ -21,7 +21,10 @@
         $status = 'Pending'; // Default status for join request
 
         // Insert the join request into the GroupJoinRequests table
-        $stmt = $pdo->prepare("INSERT INTO GroupJoinRequests (GroupID, MemberID, Status) VALUES (:groupID, :memberID, :status)");
+        $stmt = $pdo->prepare("
+            INSERT INTO GroupJoinRequests (GroupID, MemberID, Status) 
+            VALUES (:groupID, :memberID, :status)
+        ");
         $stmt->bindParam(':groupID', $groupID, PDO::PARAM_INT);
         $stmt->bindParam(':memberID', $memberID, PDO::PARAM_INT);
         $stmt->bindParam(':status', $status, PDO::PARAM_STR);
