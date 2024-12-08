@@ -62,9 +62,9 @@
                             $stmt = $pdo->prepare("
                                 SELECT GroupID, GroupName 
                                 FROM `Groups` 
-                                WHERE OwnerID = ? AND GroupID = ?
+                                WHERE GroupID = ?
                             ");
-                            $stmt->execute([$userId, $groupId]);
+                            $stmt->execute([$groupId]);
                             
                             // Check if groups are found
                             if ($stmt->rowCount() > 0) {
