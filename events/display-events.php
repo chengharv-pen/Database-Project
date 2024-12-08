@@ -37,7 +37,7 @@
             JOIN GroupMembers gm ON gm.GroupID = e.GroupID
             WHERE e.EventStatus = 'Scheduled'
             AND ev.OptionDate > NOW()
-            AND gm.MemberID = 1
+            AND gm.MemberID = :memberID
             GROUP BY e.EventID, ev.OptionID
         )
         SELECT 
@@ -75,7 +75,7 @@
             JOIN GroupMembers gm ON gm.GroupID = e.GroupID
             WHERE e.EventStatus = 'Scheduled'
             AND ev.OptionDate <= NOW()
-            AND gm.MemberID = 1
+            AND gm.MemberID = :memberID
             GROUP BY e.EventID, ev.OptionID
         )
         SELECT 
