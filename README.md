@@ -10,8 +10,6 @@ Port: 3306
 
 Link: https://npc353.encs.concordia.ca/
 
-Member Account
-
    Username                    Password
    
     admin                       admin
